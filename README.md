@@ -33,5 +33,5 @@ For `DestinationImage`, you need to type the path to where you want the image to
 
 ![image](https://user-images.githubusercontent.com/28277730/124337888-e6363900-db72-11eb-9c2e-9903886d9af6.png)
 
-You could also run the script directly from PowerShell without going through File Explorer, which would also give you the option to pass the `-VerboseOutput` switch, which shows the output of the processes that the script executes (7z and OSCDIMG). The command would look something like this:
+You could also run the script directly from PowerShell without going through File Explorer, which would also give you the option to pass the `-VerboseOutput` switch, which shows the output of the processes that the script executes (`7z` and `oscdimg`). The command would look something like this:
 `.\Win11-ImageBuilder.ps1 -Win10Image [Path] -Win11Image [Path] -DestinationImage [Destination] -VerboseOutput`
