@@ -19,11 +19,14 @@ It is recommended that you have at least 10-15 GB of disk space free for tempora
 - You should see something like this:
 ![image](https://user-images.githubusercontent.com/28277730/124337360-26e08300-db70-11eb-9f09-6f7ef011810e.png)
 - The script will first ask for the paths to the Windows 10 and Windows 11 install ISOs, and will then ask for a target to save the output ISO to. These MUST be absolute paths, and due to some current bugs, none of the paths can be in a directory like `C:\`. For best results, store everything on your Desktop or in your Documents folder.
+
   NOTE: Instead of typing the paths, you can simply drag and drop the iso files into the PowerShell window, and the path will be automatically inserted.
   ![BeJDoIrEbB](https://user-images.githubusercontent.com/28277730/124337775-47a9d800-db72-11eb-95d8-5bc1e77b1a06.gif)
   https://i.imgur.com/Gfqvit3.gif
 
 For `DestinationImage`, you need to type the path to where you want the image to be saved. Here, you can use this as a start: `C:\Users\[USERNAME]\Desktop\output.iso`
+![image](https://user-images.githubusercontent.com/28277730/124338328-2dbdc480-db75-11eb-9232-30893e10e352.png)
+
 - After pressing Enter, the process will start. On an SSD, the process should take no more than 2 - 5 minutes.
 ![image](https://user-images.githubusercontent.com/28277730/124337849-b4bd6d80-db72-11eb-86dd-077971e8b2f3.png)
 - Once the process finishes (if it finished successfully), the ISO will be wherever you saved it. You can test it in a virtual machine, or flash it to a USB drive, and it should just behave like a normal Windows 10 install (except it's Windows 11).
