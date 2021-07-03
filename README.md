@@ -25,7 +25,7 @@ It is recommended that you have at least 10-15 GB of disk space free for tempora
 For `DestinationImage`, you need to type the path to where you want the image to be saved. Here, you can use this as a start: `C:\Users\[USERNAME]\Desktop\output.iso`
 - After pressing Enter, the process will start. On an SSD, the process should take no more than 2 - 5 minutes.
 ![image](https://user-images.githubusercontent.com/28277730/124337849-b4bd6d80-db72-11eb-86dd-077971e8b2f3.png)
-- Once the process finishes (if it finished successfully), the ISO will be wherever you saved it.
+- Once the process finishes (if it finished successfully), the ISO will be wherever you saved it. You can test it in a virtual machine, or flash it to a USB drive, and it should just behave like a normal Windows 10 install (except it's Windows 11).
 
 ![image](https://user-images.githubusercontent.com/28277730/124337888-e6363900-db72-11eb-9c2e-9903886d9af6.png)
 
