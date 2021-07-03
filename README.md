@@ -17,7 +17,7 @@ It is recommended that you have at least 10-15 GB of disk space free for tempora
 
 - Right-click the script (Win11-ImageBuilder.ps1), and click `Run with PowerShell`.
 - You should see something like this:
-![image](https://user-images.githubusercontent.com/28277730/124337360-26e08300-db70-11eb-9f09-6f7ef011810e.png)
+ ![image](https://user-images.githubusercontent.com/28277730/124337360-26e08300-db70-11eb-9f09-6f7ef011810e.png)
 - The script will first ask for the paths to the Windows 10 and Windows 11 install ISOs, and will then ask for a target to save the output ISO to. These MUST be absolute paths, and due to some current bugs, none of the paths can be in a directory like `C:\`. For best results, store everything on your Desktop or in your Documents folder.
 
   NOTE: Instead of typing the paths, you can simply drag and drop the iso files into the PowerShell window, and the path will be automatically inserted.
