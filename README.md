@@ -11,6 +11,7 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
 
 ## Usage
+#### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD-Conversion](#esd-conversion) as well.
 All the tools needed to run the script properly (`7z` and `oscdimg`) are included in this repo. Just clone it, extract it, and follow the instructions below.
 NOTE: You will need to allow executing scripts in PowerShell by running `Set-ExecutionPolicy Unrestricted` in an elevated PowerShell window.
 It is recommended that you have at least 10-15 GB of disk space free for temporary files.
@@ -35,3 +36,8 @@ For `DestinationImage`, you need to type the path to where you want the image to
 
 You could also run the script directly from PowerShell without going through File Explorer, which would also give you the option to pass the `-VerboseOutput` switch, which shows the output of the processes that the script executes (`7z` and `oscdimg`). The command would look something like this:
 `.\Win11-ImageBuilder.ps1 -Win10Image [Path] -Win11Image [Path] -DestinationImage [Destination] -VerboseOutput`
+
+### ESD-Conversion
+If you're looking to create an ESD file to use instead of a WIM, follow these instructions.
+In PowerShell, when invoking the script, use `-EditMode`. This will delay the creation of the images until you type 'continue', allowing the image to be modified.
+
