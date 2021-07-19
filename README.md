@@ -19,7 +19,7 @@ It is recommended that you have at least 10-15 GB of disk space free for tempora
 - Right-click the script (Win11-ImageBuilder.ps1), and click `Run with PowerShell`.
 - You should see something like this:
  ![image](https://user-images.githubusercontent.com/28277730/124337360-26e08300-db70-11eb-9f09-6f7ef011810e.png)
-- The script will first ask for the paths to the Windows 10 and Windows 11 install ISOs, and will then ask for a target to save the output ISO to. These MUST be absolute paths, and due to some current bugs, none of the paths can be in a directory like `C:\`. For best results, store everything on your Desktop or in your Documents folder.
+- The script will first ask for the paths to the Windows 10 and Windows 11 install ISOs, and will then ask for a target to save the output ISO to. These MUST be absolute paths, and quotation marks around the paths are recommended to avoid problems. Some good places to save the output image are in your `Desktop`, `Documents`, or even your `Downloads` folder.
 
   NOTE: Instead of typing the paths, you can simply drag and drop the iso files into the PowerShell window, and the path will be automatically inserted.
   ![BeJDoIrEbB](https://user-images.githubusercontent.com/28277730/124337775-47a9d800-db72-11eb-95d8-5bc1e77b1a06.gif)
@@ -41,3 +41,10 @@ You could also run the script directly from PowerShell without going through Fil
 If you're looking to create an ESD file to use instead of a WIM, follow these instructions.
 In PowerShell, when invoking the script, use `-EditMode`. This will delay the creation of the images until you type 'continue', allowing the image to be modified.
 
+Your command should look like this:
+`.\Win11-ImageBuilder.ps1 -Win10Image "[PATH]" -Win11Image "[PATH]" -DestinationImage "[PATH]" -EditMode`
+
+Before the image gets created, the script will pause, allowing you to convert the WIM file to ESD before the ISO gets created. Let's do that here.
+
+When the script pauses, go to `C:\Scratch\W10\sources`, and MOVE the `install.wim` file to the repository directory. Inside the repository is a script from https://github.com/joeldidier/Simple-WIM2ESD---ESD2WIM-Converter that allows for converting WIM to ESD (and vice versa, if you so wished to do so). Run the script, and follow the instructions.
+Once complete, move (or copy; your choice) the `install.esd` file from the repository directory back to `C:\Scratch\W10\sources`. Go back to the PowerShell window running this script, type "continue", and press Enter. The script will build the ISO and exit.
