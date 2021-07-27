@@ -73,7 +73,7 @@ process
     Function DISM-DismountAllImages {
         Write-Host "Dismounting existing images..."
         Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
-	        Dismount-WindowsImage -Path $_.Path -Discard -ErrorAction Stop
+	        Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
         }
     }
 
