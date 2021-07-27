@@ -5,10 +5,15 @@ Creates a hybrid ISO image that houses the Windows 11 install files in a Windows
 The tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
 
 ### Why?
-The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. It has been proven time and time again that it is possible to do this without issue, and this tool was written to simplify the process.
+The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11.
 
 ### Things to note
 This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
+
+
+
+# Win11-ImageBuilder (Old)
+###This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. It has been proven time and time again that it is possible to do this without issue, and this tool was written to simplify the process.
 
 ## Usage
 #### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well.
