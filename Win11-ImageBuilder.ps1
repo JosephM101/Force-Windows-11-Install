@@ -42,8 +42,8 @@ process
 
     $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
 
-    $7ZipExecutable = ".\7z"
-    $oscdimgExecutable = ".\oscdimg"
+    $7ZipExecutable = ".\7z\7z.exe"
+    $oscdimgExecutable = ".\oscdimg\oscdimg.exe"
     $ScratchDir = "C:\Scratch"
     $Win10ScratchDir = "C:\Scratch\W10"
     $Win11ScratchDir = "C:\Scratch\W11"
@@ -100,7 +100,7 @@ process
     Function CreateImage {
         Write-Progress -Activity "Creating image..." -Status "75% Complete:" -PercentComplete 75
         $OSCDIMG_ARGS = "-m -o -u2 -udfver102 -bootdata:2#p0,e,b$Win10ScratchDir\boot\etfsboot.com#pEF,e,b$Win10ScratchDir\efi\microsoft\boot\efisys.bin $Win10ScratchDir ""$DestinationImage"""
-        Start-Process -FilePath $oscdimgExecutable -WorkingDirectory $ScriptDir -ArgumentList $OSCDIMG_ARGS -Wait -WindowStyle $DefaultWindowStyle
+        & $oscdimgExecutable $OSCDIMG_ARGS
         Write-Progress -Activity "Cleaning up..." -Status "100% Complete:" -PercentComplete 100
         CleanupScratch | Out-Null
         Write-Host "Image created." -ForegroundColor Green
@@ -110,10 +110,10 @@ process
     Write-Progress -Activity "Extracting images..." -Status "0% Complete:" -PercentComplete 0
     # $Win10_7zArguments = "x ""$Win10Image"" -o$Win10ScratchDir -x!sources/install.wim -y"
     $Win10_7zArguments = "x ""$Win10Image"" -o$Win10ScratchDir -y"
-    Start-Process -FilePath $7ZipExecutable -WorkingDirectory $ScriptDir -ArgumentList $Win10_7zArguments -Wait -WindowStyle $DefaultWindowStyle
+    & $7ZipExecutable $Win10_7zArguments 
     Write-Progress -Activity "Extracting images..." -Status "25% Complete:" -PercentComplete 25
     $Win11_7zArguments = "e ""$Win11Image"" -o$Win11ScratchDir install.wim -r"
-    Start-Process -FilePath $7ZipExecutable -WorkingDirectory $ScriptDir -ArgumentList $Win11_7zArguments -Wait -WindowStyle $DefaultWindowStyle
+    & $7ZipExecutable $Win11_7zArguments
     Write-Progress -Activity "Copying files..." -Status "50% Complete:" -PercentComplete 50
     Remove-Item -Path "$Win10ScratchDir\sources\install.wim"
     # if ($CreateESD)  {
