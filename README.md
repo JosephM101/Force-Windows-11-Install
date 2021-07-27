@@ -1,19 +1,31 @@
 # Force-Windows-11-Install
-Creates a hybrid ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements.
+
 
 ### How it works:
 The tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
 
 ### Why?
-The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11.
+The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. Note that none of these workarounds will change the fact that Windows 11 will not run on x86 platforms.
 
 ### Things to note
 This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
 
+# Win11-TPM-RegistryBypass
+This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
+
+## Usage
+#### NOTE: For the best experience, copy the Windows 11 ISO you want to use to the directory of the repository.
+- In the repository directory, run `env.bat`. This will open up a new elevated PowerShell window in the repository.
+- Type `.\Win11-TPM-RegBypass.ps1` in the PowerShell window, but don't hit Enter just yet.
+- Follow up with `-Win11Image`. This parameter is where you're going to define the location of the Windows 11 ISO you want to use. (May later be changed to `-Source`). So, copy the full filename of the ISO image you copied to the repository directory, and paste it in the PowerShell window.
+- Lastly, we need to define `-DestinationImage`; the output ISO. You can make it short and sweet, and it doesn't need to be a full path.
+- Make sure all your parameters are surrounded with quotation marks. Your final command should look something like this: `.\Win11-TPM-RegBypass.ps1 -Win11Image "22000.100.210719-2150.CO_RELEASE_SVC_PROD2_CLIENTPRO_OEMRET_X64FRE_EN-US.ISO" -DestinationImage "Win11-New.iso"`
+- Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have an ISO image without TPM or Secure Boot restrictions.
+
 
 
 # Win11-ImageBuilder (Old)
-###This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. It has been proven time and time again that it is possible to do this without issue, and this tool was written to simplify the process.
+Creates a hybrid ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements. This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. Requires a Windows 10 ISO.
 
 ## Usage
 #### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well.
