@@ -19,9 +19,14 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 - In the repository directory, run `env.bat`. This will open up a new elevated PowerShell window in the repository.
 - Type `.\Win11-TPM-RegBypass.ps1` in the PowerShell window, but don't hit Enter just yet.
 - Follow up with `-Source`. This is where you're going to define the location of the Windows 11 ISO you want to use. So, copy the full filename of the ISO image you copied to the repository directory, and paste it in the PowerShell window.
+**TIP: If your Windows 11 ISO is not in the same directory as the script, you can locate the ISO with File Explorer, select it, then click "Copy path" in the File Explorer ribbon.** 
+
+![image](https://user-images.githubusercontent.com/28277730/127249747-aee0fda7-bfaa-450b-b58b-1b3030ba0e56.png)
+
 - Lastly, we need to define `-Destination`; the output ISO. You can make it short and sweet, and it doesn't need to be a full path.
 - **Make sure all your parameters are surrounded with quotation marks.** Your final command should look something like this: `.\Win11-TPM-RegBypass.ps1 -Source "22000.100.210719-2150.CO_RELEASE_SVC_PROD2_CLIENTPRO_OEMRET_X64FRE_EN-US.ISO" -Destination "Win11-New.iso"`
-- Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new ISO image without TPM or Secure Boot restrictions.
+![image](https://user-images.githubusercontent.com/28277730/127249867-bd20873a-8b5d-45fc-bb1d-942a12c8edcc.png)
+- Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new bootable Windows 11 ISO image without the TPM or Secure Boot restrictions.
 
 
 # Win11-ImageBuilder (Old)
