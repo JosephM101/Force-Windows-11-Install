@@ -11,7 +11,7 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 ### Things to note
 This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
 
-# Win11-TPM-RegistryBypass
+# Win11-TPM-RegistryBypass (Recommended)
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
 
 ## Usage
