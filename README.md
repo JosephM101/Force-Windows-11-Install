@@ -24,7 +24,8 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 ![image](https://user-images.githubusercontent.com/28277730/127249747-aee0fda7-bfaa-450b-b58b-1b3030ba0e56.png)
 
 - Lastly, we need to define `-Destination`; the output ISO. You can make it short and sweet, and it doesn't need to be a full path.
-- **Make sure all your parameters are surrounded with quotation marks.** Your final command should look something like this: 
+- **Make sure all your parameters are surrounded with quotation marks.** Your final command should look something like this:
+
 `.\Win11-TPM-RegBypass.ps1 -Source "22000.100.210719-2150.CO_RELEASE_SVC_PROD2_CLIENTPRO_OEMRET_X64FRE_EN-US.ISO" -Destination "Win11-New.iso"`
 ![image](https://user-images.githubusercontent.com/28277730/127249867-bd20873a-8b5d-45fc-bb1d-942a12c8edcc.png)
 - Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new bootable Windows 11 ISO image without the TPM or Secure Boot restrictions.
@@ -34,7 +35,7 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 Creates a hybrid ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements. This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. Requires a Windows 10 ISO.
 
 ## Usage
-#### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well.
+#### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well. Note that the source installer (the Windows 10 image) has to already have an ESD file, otherwise the installer won't recognize it.
 All the tools needed to run the script properly (`7z` and `oscdimg`) are included in this repo. Just clone it, extract it, and follow the instructions below.
 NOTE: You will need to allow executing scripts in PowerShell by running `Set-ExecutionPolicy Unrestricted` in an elevated PowerShell window.
 It is recommended that you have at least 10-15 GB of disk space free for temporary files.
