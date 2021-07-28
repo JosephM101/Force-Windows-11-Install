@@ -4,10 +4,10 @@
 The tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
 
 ### Why?
-The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. Note that none of these workarounds will change the fact that Windows 11 will not run on x86 platforms.
+The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. 
 
 ### Things to note
-This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
+This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work. Also, none of these workarounds will change the fact that Windows 11 will not run on x86 platformsm, as it is a 64-bit only OS.
 
 # Win11-TPM-RegistryBypass
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
@@ -20,7 +20,6 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 - Lastly, we need to define `-DestinationImage`; the output ISO. You can make it short and sweet, and it doesn't need to be a full path.
 - **Make sure all your parameters are surrounded with quotation marks.** Your final command should look something like this: `.\Win11-TPM-RegBypass.ps1 -Win11Image "22000.100.210719-2150.CO_RELEASE_SVC_PROD2_CLIENTPRO_OEMRET_X64FRE_EN-US.ISO" -DestinationImage "Win11-New.iso"`
 - Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new ISO image without TPM or Secure Boot restrictions.
-
 
 
 # Win11-ImageBuilder (Old)
