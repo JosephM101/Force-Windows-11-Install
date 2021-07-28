@@ -3,11 +3,13 @@
 ### How it works:
 The tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
 
+**Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)**
+
 ### Why?
 The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. 
 
 ### Things to note
-This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work. Also, none of these workarounds will change the fact that Windows 11 will not run on x86 platformsm, as it is a 64-bit only OS.
+This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
 
 # Win11-TPM-RegistryBypass
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
