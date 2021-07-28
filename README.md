@@ -11,16 +11,16 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 ### Things to note
 This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
 
-# Win11-TPM-RegistryBypass
+# Win11-TPM-RegistryBypass (Recommended)
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
 
 ## Usage
 #### NOTE: For the best experience, copy the Windows 11 ISO you want to use to the directory of the repository.
 - In the repository directory, run `env.bat`. This will open up a new elevated PowerShell window in the repository.
 - Type `.\Win11-TPM-RegBypass.ps1` in the PowerShell window, but don't hit Enter just yet.
-- Follow up with `-Win11Image`. This is where you're going to define the location of the Windows 11 ISO you want to use. (May later be changed to `-Source`). So, copy the full filename of the ISO image you copied to the repository directory, and paste it in the PowerShell window.
-- Lastly, we need to define `-DestinationImage`; the output ISO. You can make it short and sweet, and it doesn't need to be a full path.
-- **Make sure all your parameters are surrounded with quotation marks.** Your final command should look something like this: `.\Win11-TPM-RegBypass.ps1 -Win11Image "22000.100.210719-2150.CO_RELEASE_SVC_PROD2_CLIENTPRO_OEMRET_X64FRE_EN-US.ISO" -DestinationImage "Win11-New.iso"`
+- Follow up with `-Source`. This is where you're going to define the location of the Windows 11 ISO you want to use. So, copy the full filename of the ISO image you copied to the repository directory, and paste it in the PowerShell window.
+- Lastly, we need to define `-Destination`; the output ISO. You can make it short and sweet, and it doesn't need to be a full path.
+- **Make sure all your parameters are surrounded with quotation marks.** Your final command should look something like this: `.\Win11-TPM-RegBypass.ps1 -Source "22000.100.210719-2150.CO_RELEASE_SVC_PROD2_CLIENTPRO_OEMRET_X64FRE_EN-US.ISO" -Destination "Win11-New.iso"`
 - Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new ISO image without TPM or Secure Boot restrictions.
 
 
