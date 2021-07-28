@@ -2,11 +2,11 @@ param
 (
     [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [string]
-    $Win11Image,
+    $Source,
 
     [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [string]
-    $DestinationImage
+    $Destination
 )
 
 process
@@ -117,12 +117,12 @@ process
             }
             if($inputF -eq "y")
             {
-                Remove-Item -Path $DestinationImage -Force
+                Remove-Item -Path $Destination -Force
             }
         }
     }
 
-    if(Test-Path $DestinationImage)
+    if(Test-Path $Destination)
     {
         Alert-DestinationImageAlreadyExists
     }
@@ -130,7 +130,7 @@ process
 
     Write-Host "Checking for administrative privleges..."
     if(!(AdminPrivleges)) {
-        powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Win11Image -DestinationImage $DestinationImage' -verb RunAs}"
+        # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
         Write-Host "This script requires administrative privleges to run." -ForegroundColor Red
         Exit
     }
@@ -139,7 +139,7 @@ process
 
     Write-Host "Getting information..." -ForegroundColor Yellow
     Write-Host "Checking if image exists..." -ForegroundColor Yellow
-    $win11exists = Test-Path $Win11Image
+    $win11exists = Test-Path $Source
     if(!$win11exists)
     {
         Write-Error -Message "Win11Image: File does not exist" -Category ObjectNotFound
@@ -153,7 +153,7 @@ process
     mkdir -Path $ScratchDir
 
     # Check for evidence that the image was previously modified.
-    & $7ZipExecutable e $Win11Image ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
+    & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
     if(Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
     {
         Write-Host "Looks like you've already used this tool on this ISO. Continuing is not recommended as it hasn't been tested."
@@ -162,7 +162,7 @@ process
     
     Write-Progress -Activity "$ActivityName" -Status "Extracting image" -PercentComplete 0
     # Extract source ISO to scratch directory
-    & $7ZipExecutable x $Win11Image ("-o" + $Win11ScratchDir) | Out-Null
+    & $7ZipExecutable x $Source ("-o" + $Win11ScratchDir) | Out-Null
     Write-Progress -Activity "$ActivityName" -Status "Mounting boot.wim" -PercentComplete 50
     # Make directory for DISM mount
     mkdir -Path $WIMScratchDir
@@ -206,14 +206,14 @@ process
     [System.IO.File]::WriteAllBytes($sb_bypass_key, $REGKEY_BYTES)
 
     Write-Progress -Activity $ActivityName -Status "Creating ISO" -PercentComplete 80
-    $OSCDIMG_ARGS = "-m -o -u2 -udfver102 -bootdata:2#p0,e,b$Win11ScratchDir\boot\etfsboot.com#pEF,e,b$Win11ScratchDir\efi\microsoft\boot\efisys.bin $Win11ScratchDir ""$DestinationImage"""
+    $OSCDIMG_ARGS = "-m -o -u2 -udfver102 -bootdata:2#p0,e,b$Win11ScratchDir\boot\etfsboot.com#pEF,e,b$Win11ScratchDir\efi\microsoft\boot\efisys.bin $Win11ScratchDir ""$Destination"""
     Start-Process -FilePath $oscdimgExecutable -WorkingDirectory $ScriptDir -ArgumentList $OSCDIMG_ARGS -Wait -WindowStyle $DefaultWindowStyle
     Write-Progress -Activity $ActivityName -Status "Cleaning up" -PercentComplete 100
 
     CleanupScratch | Out-Null
 
     Write-Host "Image created." -ForegroundColor Green
-    Write-Host $DestinationImage
+    Write-Host $Destination
 
     Pause
 
