@@ -1,7 +1,7 @@
 param
 (
-    [switch]$VerboseOutput = $false,
-    #[switch]$CreateESD = $false,
+    # [switch]$VerboseOutput = $false,
+    # [switch]$CreateESD = $false,
     [switch]$EditMode = $false,
 
     [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
@@ -39,11 +39,11 @@ process
         Remove-Item -Path "C:\SCRATCH" -Force -Recurse
     }
     
-    $DefaultWindowStyle = "Hidden"
-
-    if($VerboseOutput) {
-        $DefaultWindowStyle = "Normal"
-    }
+    # $DefaultWindowStyle = "Hidden"
+# 
+    # if($VerboseOutput) {
+    #     $DefaultWindowStyle = "Normal"
+    # }
 
     $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
 
@@ -52,8 +52,8 @@ process
     $ScratchDir = "C:\Scratch"
     $Win10ScratchDir = "C:\Scratch\W10"
     $Win11ScratchDir = "C:\Scratch\W11"
-    $DISMExecutable = Join-Path -Path $ScriptDir -ChildPath "DISM\dism.exe"
-    $DISMExecutableDir = Join-Path -Path $ScriptDir -ChildPath "DISM"
+    # $DISMExecutable = Join-Path -Path $ScriptDir -ChildPath "DISM\dism.exe"
+    # $DISMExecutableDir = Join-Path -Path $ScriptDir -ChildPath "DISM"
     Write-Host "Getting information..." -ForegroundColor Yellow
     Write-Host "Checking if specified images exist..." -ForegroundColor Yellow
     $win10exists = Test-Path $Win10Image
