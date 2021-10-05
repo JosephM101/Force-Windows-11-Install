@@ -20,7 +20,13 @@ param
 
 process
 {
-    Import-Module -Name DISM
+    try {
+        Import-Module -Name DISM
+    }
+    catch {
+        Write-Host "Couldn't import DISM module. It may not be installed."
+    }
+    
     $OldLocation = Get-Location
 
     { # Base64-encoded files & definitions
