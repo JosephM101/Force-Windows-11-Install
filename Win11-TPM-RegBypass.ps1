@@ -39,12 +39,12 @@ process
     }
 
     $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
-    $ScriptExec = $script:MyInvocation.MyCommand.Path
+    #$ScriptExec = $script:MyInvocation.MyCommand.Path
 
     $7ZipExecutable = Join-Path -Path $ScriptDir -ChildPath "7z\7z.exe"
     $oscdimgExecutable = ".\oscdimg\oscdimg"
-    $DISMExecutable = Join-Path -Path $ScriptDir -ChildPath "DISM\dism.exe"
-    $DISMExecutableDir = Join-Path -Path $ScriptDir -ChildPath "DISM"
+    #$DISMExecutable = Join-Path -Path $ScriptDir -ChildPath "DISM\dism.exe"
+    #$DISMExecutableDir = Join-Path -Path $ScriptDir -ChildPath "DISM"
 
     $ScratchDir = "C:\Scratch"
     $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
@@ -53,7 +53,7 @@ process
     $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
     $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
     $BootWimImageIndex = 2
-    $RegkeyPath = Join-Path -Path $ScratchDir -ChildPath "regkey.reg"
+    #$RegkeyPath = Join-Path -Path $ScratchDir -ChildPath "regkey.reg"
 
     $sb_bypass_keyname = "win11-tpm-sb-bypass"
     $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
