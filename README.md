@@ -39,7 +39,7 @@ You are solely responsible for any issues that occur by installing Windows 11 on
 --------
 
 # Win11-ImageBuilder (Obsolete)
-This tool has been marked obsolete, and is no longer maintained. For the documentation on the tool, navigate [here](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/Documentation%20for%20Win11-ImageBuilder.md).
+This tool has been marked obsolete, and is no longer maintained. For the documentation on the tool, [navigate here](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/Documentation%20for%20Win11-ImageBuilder.md).
 
 ### ESD Conversion
 If you're looking to create an ESD file to use instead of a WIM, follow these instructions.
