@@ -26,7 +26,7 @@ process
     catch {
         Write-Host "Couldn't import DISM module. It may not be installed."
     }
-    
+
     $OldLocation = Get-Location
 
     { # Base64-encoded files & definitions
