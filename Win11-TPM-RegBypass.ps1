@@ -267,7 +267,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
         # Get information and list of its editions from install.wim
         Write-Host "Getting install.wim info..."
         $WIMEditions = Get-WindowsImage -ImagePath $InstallWIMFilePath
-        $WIMCountStr = $WIMEditions.Count.ToString()
 
         if($WIMEditions.Count -gt 1) {
             # If install.wim has more than one edition, give the user the option to choose one or all.
@@ -281,11 +280,11 @@ rmdir C:\Windows\Setup\Scripts /s /q
             # Print editions from $EditionList
             $EditionList | ForEach-Object {"$PSItem"}
 
-            #$SelectMulti = @()
-
             Write-Host ""
 
             # Request choice from user
+            # # $WIMCountStr = $WIMEditions.Count.ToString()
+            # $SelectMulti = @()
             # do 
             # {
             #     $SelectedIndex = try {(Read-Host "Enter choice [0-$WIMCountStr], 'M' to select multiple")}
@@ -477,7 +476,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
     # Make directory for DISM mount
     mkdir -Path $WIMScratchDir
 
-    if(-not $SkipReg)
+    if(-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
     {
         # Mount boot.wim for editing
         Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
@@ -488,6 +487,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
         Dismount-WindowsImage -Path $WIMScratchDir -Save
     }
 
+    # Check if we need to modify install.wim, and act accordingly
     if($InjectVMwareTools -or $InjectPostPatch) {
         InjectExtraPatches
     }
