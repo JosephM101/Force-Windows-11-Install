@@ -84,7 +84,7 @@ process
         Finally {$ErrorActionPreference=$oldPreference}
     }
 
-    Function Verify-Switches {
+    Function VerifySwitches {
         # VMware Tools Switch
         if($InjectVMwareTools) {
             if (!(Test-Path $VMwareToolsISOPath)) {
@@ -102,7 +102,7 @@ process
     Function CleanupScratch {
         if(Test-Path $ScratchDir) {
             # Write-Host "INFO: Deleting old Scratch directory..." -ForegroundColor Yellow
-            DISM-DismountAllImages
+            DISM_DismountAllImages
             Remove-Item -Path $ScratchDir -Force -Recurse
         }
     }
@@ -114,7 +114,7 @@ process
         #Start-Sleep 1
     }    
     
-    Function DISM-DismountAllImages {
+    Function DISM_DismountAllImages {
         Write-Host "Dismounting all mounted Windows images..."
         #Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
 	    #    Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
@@ -130,12 +130,12 @@ process
     }
 
     # Alert the user if the source image has already been modified by this tool
-    Function Alert-ImageModified {
+    Function Alert_ImageModified {
         $inputF = Read-Host -Prompt "Are you sure you want to continue? [y/n]"
         if(($inputF -ne "y") -and ($inputF -ne "n"))
         {
             Write-Host "Invalid input: $inputF" -ForegroundColor Red
-            Alert-ImageModified
+            Alert_ImageModified
         }
         else
         {
@@ -147,12 +147,12 @@ process
     }
 
     # Check to see if the destination image exists before continuing.
-    Function Alert-DestinationImageAlreadyExists {
+    Function Alert_DestinationImageAlreadyExists {
         $inputF = Read-Host -Prompt "The destination image already exists. Do you want to overwrite it? [y/n]"
         if(($inputF -ne "y") -and ($inputF -ne "n"))
         {
             Write-Host "Invalid input: $inputF" -ForegroundColor Red
-            Alert-DestinationImageAlreadyExists
+            Alert_DestinationImageAlreadyExists
         }
         else
         {
@@ -167,13 +167,13 @@ process
         }
     }
 
-    Function AnnounceProgress-RunningExtraTasks {
+    Function AnnounceProgress_RunningExtraTasks {
         Write-Progress -Activity $ActivityName -Status "Executing extra tasks..." -PercentComplete 75
     }
 
     if(Test-Path $Destination)
     {
-        Alert-DestinationImageAlreadyExists
+        Alert_DestinationImageAlreadyExists
     }
 
     # Features
@@ -183,7 +183,7 @@ process
         $REG_System = Join-Path $WIMScratchDir -ChildPath "\Windows\System32\config\system"
         $VirtualRegistryPath_SYSTEM = "HKLM\WinPE_SYSTEM"
         $VirtualRegistryPath_Setup = $VirtualRegistryPath_SYSTEM + "\Setup"
-        $VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
+        #$VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
         reg unload $VirtualRegistryPath_SYSTEM | Out-Null # Just in case...
         Start-Sleep 1
         reg load $VirtualRegistryPath_SYSTEM $REG_System | Out-Null
@@ -258,7 +258,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
     }
 
     Function InjectExtraPatches {
-        AnnounceProgress-RunningExtraTasks
+        AnnounceProgress_RunningExtraTasks
         Write-Host "Preparing to modify install.wim..."
         mkdir $InstallWIMMountPath # Make our mount directory for install.wim...
 
@@ -281,7 +281,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
             # Print editions from $EditionList
             $EditionList | ForEach-Object {"$PSItem"}
 
-            $SelectMulti = @()
+            #$SelectMulti = @()
 
             Write-Host ""
 
@@ -364,10 +364,10 @@ rmdir C:\Windows\Setup\Scripts /s /q
             }
 
             if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If we selected individuals, we're of course not doing them all. Find if a 0 exists, and remove it if the length of the list is larger than 1
-                $Selection = $Selection | ? { $_ -ne 0 }
+                $Selection = $Selection | Where-Object { $_ -ne 0 }
             }
 
-            $Selection = $Selection | select -uniq # Remove duplicates from the array; not really necessary considering that the above selection method does that for us. We'll just keep it here for good measure.
+            $Selection = $Selection | Select-Object -uniq # Remove duplicates from the array; not really necessary considering that the above selection method does that for us. We'll just keep it here for good measure.
 
             # Print the selection
             Write-Host "Selected:"
@@ -468,7 +468,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
     if(Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
     {
         Write-Host "Looks like you've already used this tool on this ISO. Continuing is not recommended as it hasn't been tested."
-        Alert-ImageModified
+        Alert_ImageModified
     }    
     Write-Progress -Activity "$ActivityName" -Status "Extracting image" -PercentComplete 0
     # Extract source ISO to scratch directory
