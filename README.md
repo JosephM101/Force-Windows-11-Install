@@ -1,18 +1,21 @@
 # Force-Windows-11-Install
 
-### How it works:
-The tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
-
 **Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)**
+
+## Background
+Following the announcement of Windows 11, many users were rather discouraged to discover the new TPM, CPU and Secure Boot restrictions imposed by Microsoft for Windows 11 in an attempt to block devices lacking these features from installing and running it. This has left a lot of otherwise excited users in the dark, with virtually no way to upgrade without buying a new machine sporting a CPU newer than 2018, as well as the aforementioned features. However, it's been proven time and time again that on many devices considered unsupported, the Windows 11 experience was actually not horrible, and in some cases, better than that of Windows 10. Microsoft claims the reasons for enforcing these restrictions have to do with both compatibility and security. They claimed that many of the older devices they tested Windows 11 on encountered Blue Screen of Death errors. However, many people running Windows 11 on their so-called incompatible devices didn’t report any huge issues at the time of writing. While it’s not exactly recommended to run Windows 11 on an incompatible device (especially if it’s a daily driver), it certainly is possible to bypass Microsoft’s restrictions and allow installing or upgrading to Windows 11.
 
 ### Why?
 The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. 
 
 ### Things to note
-This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work. Also note that upgrades to newer versions of Windows 11 through Windows Update will not install.
+You are solely responsible for any issues that occur by installing Windows 11 on incompatible hardware.
 
 # Win11-TPM-RegistryBypass (Recommended)
-This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
+This tool creates a modified Windows 11 installer ISO using an existing one, containing a registry hack that bypasses the setup-time compatibility checks, as well as an experimental patch that forces feature updates installed through Windows Update to install, despite incompatibilities.
+
+### How it works:
+This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer. There are extra switches that can be passed for further patching, such as one that allows for forcing Windows Updates to skip compatibility checks; see [extra switches](#extra-switches) for more. A Windows 10 ISO is not required for this method.
 
 ## Usage
 #### NOTE: This tutorial assumes that the Windows 11 ISO you want to use is in the directory of the repository.
@@ -31,14 +34,17 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 - Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new bootable Windows 11 ISO image without the TPM or Secure Boot restrictions.
 
 ## Extra switches
-**Note that any options that modify install.wim may result in the process taking longer.
+**Note that any options that modify install.wim may result in the process taking longer.**
 - `-InjectVMwareTools` - Injects the VMware tools installer into the install.wim image to run when the system boots for the first time. VMware needs to be installed, and the VMware Tools ISO needs to exist in its application folder. The process is modifying install.wim, and may take significantly longer.
 
-- `-InjectPostPatch` - (In development) Injects a script into the install.wim image to run when the system boots for the first time. The script should force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing the upgrade to take place.
+- `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
 
+--------
 
 # Win11-ImageBuilder (Old)
-Creates a hybrid ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements. This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. Requires a Windows 10 ISO.
+This tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
+
+In other words, it creates a "hybrid" ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements. This workaround will allow a user to install Windows 11 on incompatible devices by using the Windows 10 installer, which does not have the same restrictions. **Requires a Windows 10 ISO.**
 
 ## Usage
 #### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well. Note that the source installer (the Windows 10 image) has to already have an ESD file, otherwise the installer won't have been configured for ESD installations, and therefore will not recognize the file.
