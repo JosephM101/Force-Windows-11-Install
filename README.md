@@ -9,7 +9,7 @@ The tool extracts the contents of an existing Windows 10 iso to a scratch direct
 The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. 
 
 ### Things to note
-This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work.
+This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work. Also note that upgrades to newer versions of Windows 11 through Windows Update will not install.
 
 # Win11-TPM-RegistryBypass (Recommended)
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
@@ -30,12 +30,18 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 ![image](https://user-images.githubusercontent.com/28277730/127249867-bd20873a-8b5d-45fc-bb1d-942a12c8edcc.png)
 - Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new bootable Windows 11 ISO image without the TPM or Secure Boot restrictions.
 
+## Extra switches
+**Note that any options that modify install.wim may result in the process taking longer.
+- `-InjectVMwareTools` - Injects the VMware tools installer into the install.wim image to run when the system boots for the first time. VMware needs to be installed, and the VMware Tools ISO needs to exist in its application folder. The process is modifying install.wim, and may take significantly longer.
+
+- `-InjectPostPatch` - (In development) Injects a script into the install.wim image to run when the system boots for the first time. The script should force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing the upgrade to take place.
+
 
 # Win11-ImageBuilder (Old)
 Creates a hybrid ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements. This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. Requires a Windows 10 ISO.
 
 ## Usage
-#### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well. Note that the source installer (the Windows 10 image) has to already have an ESD file, otherwise the installer won't recognize it.
+#### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well. Note that the source installer (the Windows 10 image) has to already have an ESD file, otherwise the installer won't have been configured for ESD installations, and therefore will not recognize the file.
 All the tools needed to run the script properly (`7z` and `oscdimg`) are included in this repo. Just clone it, extract it, and follow the instructions below.
 NOTE: You will need to allow executing scripts in PowerShell by running `Set-ExecutionPolicy Unrestricted` in an elevated PowerShell window.
 It is recommended that you have at least 10-15 GB of disk space free for temporary files.
