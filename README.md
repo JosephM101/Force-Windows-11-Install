@@ -1,18 +1,21 @@
 # Force-Windows-11-Install
 
-## Background
-
 **Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)**
+
+## Background
+Following the announcement of Windows 11, many users were rather discouraged to discover the new TPM, CPU and Secure Boot restrictions imposed by Microsoft for Windows 11 in an attempt to block devices lacking these features from installing and running it. This has left a lot of otherwise excited users in the dark, with virtually no way to upgrade without buying a new machine sporting a CPU newer than 2018, as well as the aforementioned features. However, it's been proven time and time again that on many devices considered unsupported, the Windows 11 experience was actually not horrible, and in some cases, better than that of Windows 10. Microsoft claims the reasons for enforcing these restrictions have to do with both compatibility and security. They claimed that many of the older devices they tested Windows 11 on encountered Blue Screen of Death errors. However, many people running Windows 11 on their so-called incompatible devices didn’t report any huge issues at the time of writing. While it’s not exactly recommended to run Windows 11 on an incompatible device (especially if it’s a daily driver), it certainly is possible to bypass Microsoft’s restrictions and allow installing or upgrading to Windows 11.
 
 ### Why?
 The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. 
 
 ### Things to note
-This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work. Also note that upgrades to newer versions of Windows 11 through Windows Update will not install.
+You are solely responsible for any issues that occur by installing Windows 11 on incompatible hardware.
 
 # Win11-TPM-RegistryBypass (Recommended)
+This tool creates a modified Windows 11 installer ISO using an existing one, containing a registry hack that bypasses the setup-time compatibility checks, as well as an experimental patch that forces feature updates installed through Windows Update to install, despite incompatibilities.
+
 ### How it works:
-This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered incompatible hardware. A Windows 10 ISO is not required for this method.
+This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer. There are extra switches that can be passed for further patching; see [extra switches](#extra-switches). A Windows 10 ISO is not required for this method.
 
 ## Usage
 #### NOTE: This tutorial assumes that the Windows 11 ISO you want to use is in the directory of the repository.
