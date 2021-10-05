@@ -31,6 +31,7 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 - Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new bootable Windows 11 ISO image without the TPM or Secure Boot restrictions.
 
 ## Extra switches
+**Note that any options that modify install.wim may result in the process taking longer.
 - `-InjectVMwareTools` - Injects the VMware tools installer into the install.wim image to run when the system boots for the first time. VMware needs to be installed, and the VMware Tools ISO needs to exist in its application folder. The process is modifying install.wim, and may take significantly longer.
 
 - `-InjectPostPatch` - (In development) Injects a script into the install.wim image to run when the system boots for the first time. The script should force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing the upgrade to take place.
