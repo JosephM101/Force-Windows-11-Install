@@ -34,7 +34,7 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 **Note that any options that modify install.wim may result in the process taking longer.
 - `-InjectVMwareTools` - Injects the VMware tools installer into the install.wim image to run when the system boots for the first time. VMware needs to be installed, and the VMware Tools ISO needs to exist in its application folder. The process is modifying install.wim, and may take significantly longer.
 
-- `-InjectPostPatch` - (In development) Injects a script into the install.wim image to run when the system boots for the first time. The script should force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing the upgrade to take place.
+- `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
 
 
 # Win11-ImageBuilder (Old)
