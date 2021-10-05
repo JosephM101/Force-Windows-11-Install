@@ -115,7 +115,7 @@ process
     }    
     
     Function DISM-DismountAllImages {
-        Write-Host "Dismounting existing images..."
+        Write-Host "Dismounting all mounted Windows images..."
         #Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
 	    #    Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
         #}
