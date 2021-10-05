@@ -12,6 +12,9 @@ param
     $InjectVMwareTools = $false,
 
     [switch]
+    $InjectPostPatch = $false,
+
+    [switch]
     $SkipReg = $false
 )
 
@@ -22,6 +25,8 @@ process
 
     # The encoded version (Base64) of the registry keys to be applied to the boot.wim file to bypass TPM and Secure Boot checks
     $REGISTRY_KEY_FILE_B64 = "//5XAGkAbgBkAG8AdwBzACAAUgBlAGcAaQBzAHQAcgB5ACAARQBkAGkAdABvAHIAIABWAGUAcgBzAGkAbwBuACAANQAuADAAMAANAAoADQAKAFsASABLAEUAWQBfAEwATwBDAEEATABfAE0AQQBDAEgASQBOAEUAXABTAFkAUwBUAEUATQBcAFMAZQB0AHUAcABcAEwAYQBiAEMAbwBuAGYAaQBnAF0ADQAKACIAQgB5AHAAYQBzAHMAVABQAE0AQwBoAGUAYwBrACIAPQBkAHcAbwByAGQAOgAwADAAMAAwADAAMAAwADEADQAKACIAQgB5AHAAYQBzAHMAUwBlAGMAdQByAGUAQgBvAG8AdABDAGgAZQBjAGsAIgA9AGQAdwBvAHIAZAA6ADAAMAAwADAAMAAwADAAMQANAAoADQAKAA=="
+
+    $POST_PATCH_CMD_FILE_B64 = "QChzZXQgIjA9JX5mMCJeKSMpICYgcG93ZXJzaGVsbCAtbm9wIC1jIGlleChbaW8uZmlsZV06OlJlYWRBbGxUZXh0KCRlbnY6MCkpICYgZXhpdC9iDQojOjogZG91YmxlLWNsaWNrIHRvIHJ1biBvciBqdXN0IGNvcHktcGFzdGUgaW50byBwb3dlcnNoZWxsIC0gaXQncyBhIHN0YW5kYWxvbmUgaHlicmlkIHNjcmlwdA0KIzo6IHYyIHVzaW5nIGlmZW8gaW5zdGVhZCBvZiB3bWkgLSBpbmNyZWFzZWQgY29tcGF0aWJpbGl0eSBhdCB0aGUgY29zdCBvZiBzaG93aW5nIGEgY21kIGJyaWVmbHkgb24gZGlza21nbXQgDQoNCiRfUGFzdGVfaW5fUG93ZXJzaGVsbCA9IHsNCiAgJE4gPSAnU2tpcCBUUE0gQ2hlY2sgb24gRHluYW1pYyBVcGRhdGUnDQogICRCID0gZ3dtaSAtQ2xhc3MgX19GaWx0ZXJUb0NvbnN1bWVyQmluZGluZyAtTmFtZXNwYWNlICdyb290XHN1YnNjcmlwdGlvbicgLUZpbHRlciAiRmlsdGVyID0gIiJfX2V2ZW50ZmlsdGVyLm5hbWU9JyROJyIiIiAtZWEgMA0KICAkQyA9IGd3bWkgLUNsYXNzIENvbW1hbmRMaW5lRXZlbnRDb25zdW1lciAtTmFtZXNwYWNlICdyb290XHN1YnNjcmlwdGlvbicgLUZpbHRlciAiTmFtZT0nJE4nIiAtZWEgMA0KICAkRiA9IGd3bWkgLUNsYXNzIF9fRXZlbnRGaWx0ZXIgLU5hbWVTcGFjZSAncm9vdFxzdWJzY3JpcHRpb24nIC1GaWx0ZXIgIk5hbWU9JyROJyIgLWVhIDANCiAgaWYgKCRCKSB7ICRCIHwgcndtaSB9IDsgaWYgKCRDKSB7ICRDIHwgcndtaSB9IDsgaWYgKCRGKSB7ICRGIHwgcndtaSB9DQogICRDID0gImNtZCAvcSAkTiAoYykgQXZlWW8sIDIwMjEgL2QveC9yPm51bCAoZXJhc2UgL2Yvcy9xICVzeXN0ZW1kcml2ZSVcYCR3aW5kb3dzLn5idFxhcHByYWlzZXJyZXMuZGxsIg0KICAkQys9ICcmbWQgMTEmY2QgMTEmcmVuIHZkLmV4ZSB2ZHNsZHIuZXhlJnJvYm9jb3B5ICIuLi8iICIuLyIgInZkc2xkci5leGUiJnJlbiB2ZHNsZHIuZXhlIHZkLmV4ZSZzdGFydCB2ZCAtRW1iZWRkaW5nKSZyZW07Jw0KICAkSyA9ICdIS0xNOlxTT0ZUV0FSRVxNaWNyb3NvZnRcV2luZG93cyBOVFxDdXJyZW50VmVyc2lvblxJbWFnZSBGaWxlIEV4ZWN1dGlvbiBPcHRpb25zXHZkc2xkci5leGUnDQogIGlmICh0ZXN0LXBhdGggJEspIHtyaSAkSyAtZm9yY2UgLWVhIDA7IHdyaXRlLWhvc3QgLWZvcmUgMHhmIC1iYWNrIDB4ZCAiYG4gJE4gW1JFTU9WRURdIHJ1biBhZ2FpbiB0byBpbnN0YWxsIn0NCiAgZWxzZSB7JDA9bmkgJEs7IHNwICRLIERlYnVnZ2VyICRDIC1mb3JjZTsgd3JpdGUtaG9zdCAtZm9yZSAweGYgLWJhY2sgMHgyICJgbiAkTiBbSU5TVEFMTEVEXSBydW4gYWdhaW4gdG8gcmVtb3ZlIn0NCiAgJDAgPSBzcCBIS0xNOlxTWVNURU1cU2V0dXBcTW9TZXR1cCAnQWxsb3dVcGdyYWRlc1dpdGhVbnN1cHBvcnRlZFRQTU9yQ1BVJyAxIC10eXBlIGR3b3JkIC1mb3JjZSAtZWEgMA0KfSA7IHN0YXJ0IC12ZXJiIHJ1bmFzIHBvd2Vyc2hlbGwgLWFyZ3MgIi1ub3AgLWMgJiB7YG5gbiQoJF9QYXN0ZV9pbl9Qb3dlcnNoZWxsLXJlcGxhY2UnIicsJ1wiJyl9Ig0KJF9QcmVzc19FbnRlcg0KIywj"
     
     $DefaultWindowStyle = "Normal"
     $ActivityName = "Win11-TPM-Bypass"
@@ -50,8 +55,17 @@ process
     $sb_bypass_keyname = "win11-tpm-sb-bypass"
     $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
 
-    # Extra Features
+    $PostSetupScriptsPath = "Windows\Setup\Scripts"
+    $PostPatchCMDFilename = "SkipTPM.cmd"
+
+    $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
+    $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
+
+    $VMwareTempFolderName = "vmwaretools"
+    $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
+    #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
     $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
+    
 
     Function GetPercentageFromRange ($value, $minV, $maxV) {
         $percentage = ($value - $minV) / ($maxV - $minV)
@@ -99,9 +113,10 @@ process
     
     Function DISM-DismountAllImages {
         Write-Host "Dismounting existing images..."
-        Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
-	        Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
-        }
+        #Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
+	    #    Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
+        #}
+        Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\WIMMount\Mounted Images" | Get-ItemProperty | Select -ExpandProperty "Mount Path" | ForEach-Object {Dismount-WindowsImage -Path $_ -Discard}
     }
 
     Function TerminateS_Premature {
@@ -158,7 +173,6 @@ process
         Alert-DestinationImageAlreadyExists
     }
 
-
     # Features
     Function InjectRegistryKeys {
         # Mount and edit the setup environment's registry
@@ -187,44 +201,75 @@ process
         Write-Host "boot.wim patched" -ForegroundColor Green
     }
 
-    Function InjectVMwareTools {
-        # Scratch directory for VMware Tools
-        $VMwareToolsScratchDir = Join-Path -Path $ScratchDir -ChildPath "vmwaretools"
+    Function GeneratePostSetupFileStructure {
+        # Create the directories everything will be prepared in
+        mkdir $Temp_PostSetupOperations
+        mkdir $Temp_PostSetupOperations_ScriptDirectory
+        
+        # Generate SetupComplete.cmd file
+        $SetupCompleteCMD = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath "SetupComplete.cmd"
 
+        # Define the contents of our SetupComplete.cmd file
+        if($InjectVMwareTools) { $VMwareInstall =
+@"
+C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
+rmdir C:\$VMwareTempFolderName /s /q
+"@ }
+
+        if($InjectPostPatch) { $PatchInject =
+@"
+C:\$PostSetupScriptsPath\$PostPatchCMDFilename
+"@ }
+
+        $SetupCompleteCMDContents = 
+@"
+$PatchInject
+$VMwareInstall
+rmdir C:\Windows\Setup\Scripts /s /q
+"@
+
+        # Write SetupComplete.cmd contents to file in scratch directory
+        $stream = [System.IO.StreamWriter] $SetupCompleteCMD
+        $stream.Write(($SetupCompleteCMDContents -join "`r`n"))
+        $stream.close()
+
+        # If VMware Tools injection was selected, copy the contents of the installer to the root of the structure; folder name defined by $VMwareTempFolderName
+        if($InjectVMwareTools) {
+            # Make our temporary directory for VMware Tools
+            mkdir $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
+            # Extract the VMware Tools ISO to that directory
+            & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
+        }
+
+        if($InjectPostPatch) {
+            $scrFilepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchCMDFilename
+            [byte[]]$E_BYTES = [convert]::FromBase64String($POST_PATCH_CMD_FILE_B64)
+            [System.IO.File]::WriteAllBytes($scrFilepath, $E_BYTES)
+        }
+    }
+
+    Function CopyPostSetupFiles ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
+        Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
+        Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
+        Dismount-WindowsImage -Path $MountPath -Save
+    }
+
+    Function InjectExtraPatches {
         AnnounceProgress-RunningExtraTasks
-        Write-Host "Preparing to inject VMware Tools into install.wim..."
+        Write-Host "Preparing to modify install.wim..."
         mkdir $InstallWIMMountPath # Make our mount directory for install.wim...
-        mkdir $VMwareToolsScratchDir #... and our temporary directory for VMware Tools
+
+        GeneratePostSetupFileStructure
+
         # Get information about install.wim, such as if it has more than one edition.
         Write-Host "Getting install.wim info..."
         $WIMEditions = Get-WindowsImage -ImagePath $InstallWIMFilePath
         $WIMCountStr = $WIMEditions.Count.ToString()
 
-        # Prepare everything we need in the VMware Tools scratch directory.
-        # Extract the VMware Tools ISO
-        $VMwareTempFolderName = "vmwaretools"
-        $MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath "Windows\Setup\Scripts"
-        $SetupCompleteCMD = Join-Path -Path $MountDir_Setup -ChildPath "SetupComplete.cmd"
-        # Define the contents of our SetupComplete.cmd file
-        $SetupCompleteCMDContents = 
-@"
-C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
-rmdir C:\$VMwareTempFolderName /s /q
-rmdir C:\Windows\Setup\Scripts /s /q
-"@
-        mkdir $MountDir_Setup
-        & $7ZipExecutable x $VMwareToolsISOPath ("-o" + (Join-Path -Path $VMwareToolsScratchDir -ChildPath $VMwareTempFolderName)) | Out-Null
-        # Generate SetupComplete.cmd file
-
-        # Write SetupComplete.cmd contents to file
-        $stream = [System.IO.StreamWriter] $SetupCompleteCMD
-        $stream.Write(($SetupCompleteCMDContents -join "`r`n"))
-        $stream.close()
-
         if($WIMEditions.Count -gt 1) {
             # If install.wim has more than one edition, give the user the option to choose one or all.
             $EditionList = @("0: Modify all editions")
-            Write-Host "The install.wim image contains multiple editions. Enter the index number of the edition(s) you want to use (editions not selected will not exist in the new image), or type 0 to modify all (not recommended)" -ForegroundColor Yellow
+            Write-Host "The install.wim image contains multiple editions. Enter the index number of the edition(s) you want to use (editions not selected will not be included in the new image), or type 0 to modify all (may take a very long time)" -ForegroundColor Yellow
             Write-Host ""
             # Sift through editions
             foreach ($WIMedition in $WIMEditions) {
@@ -261,6 +306,9 @@ rmdir C:\Windows\Setup\Scripts /s /q
             #     }
             # }
 
+            $Regex_Default = '^[0-9,]+$'
+            $PRegex = '^[0-9]+([,]*[0-9]+)*$'
+            
             do 
             {
                 try {[ValidatePattern('^[0-9,]+$')]$Multi_Options = (Read-Host "Enter choice(s) [0-$WIMCountStr]. For multiple selections, separate choices with commas (ex. 1,3,6)")}
@@ -270,6 +318,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
             $Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
                 try {
                     [int]::Parse($indexEntry)
+                    Write-Host $indexEntry
                 }
                 catch{}
             }
@@ -278,29 +327,27 @@ rmdir C:\Windows\Setup\Scripts /s /q
                 $Selection = $Selection | ? { $_ -ne 0 }
             }
 
+
+
             $Selection = $Selection | select -uniq # Remove duplicates from the array
 
             # Print the selection
             Write-Host "Selected:"
             $Selection | ForEach-Object { $WIMEditions[$PSItem - 1].ImageName }
 
-            if($Selection[0] -eq 0)
-            {
+            if($Selection[0] -eq 0) {
                 Write-Host "Processing all"
-                #foreach ($edition in $WIMEditions)
-                #{
-                #    $PercentageComplete = GetPercentageFromRange $edition.ImageIndex 0 $WIMEditions.Count
-                #    Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $edition.ImageName + " (" + $edition.ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete $PercentageComplete
-                #    Sub_InjectVMwareTools $InstallWIMFilePath $InstallWIMMountPath $edition.ImageIndex $VMwareToolsScratchDir 
-                #}
-                #CleanWIM $InstallWIMFilePath $SelectedIndex
+                foreach ($edition in $WIMEditions) {
+                    $PercentageComplete = GetPercentageFromRange $edition.ImageIndex 0 $WIMEditions.Count
+                    Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $edition.ImageName + " (" + $edition.ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete $PercentageComplete
+                    CopyPostSetupFiles $InstallWIMFilePath $InstallWIMMountPath $edition.ImageIndex
+                }
+                CleanWIM $InstallWIMFilePath $SelectedIndex
             }
             else
             {
-                $EditionsToProcess = foreach ($edition in $WIMEditions)
-                {
-                    if ($Selection -contains $edition.ImageIndex)
-                    {
+                $EditionsToProcess = foreach ($edition in $WIMEditions) {
+                    if ($Selection -contains $edition.ImageIndex) {
                         $edition
                     }
                 }
@@ -312,7 +359,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
                     $CurrentIndex++
                     $PercentageComplete = GetPercentageFromRange ($CurrentIndex - 1) 0 $EditionsToProcess.Count
                     Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $edition.ImageName + " (" + $CurrentIndex.ToString() + "/" + $EditionsToProcess.Count.ToString() + ")") -PercentComplete $PercentageComplete
-                    Sub_InjectVMwareTools $InstallWIMFilePath $InstallWIMMountPath $edition.ImageIndex $VMwareToolsScratchDir
+                    CopyPostSetupFiles $InstallWIMFilePath $InstallWIMMountPath $edition.ImageIndex
                     Start-Sleep 1
                 }
                 CleanWIM $InstallWIMFilePath $EditionsToProcess
@@ -320,15 +367,26 @@ rmdir C:\Windows\Setup\Scripts /s /q
         }
         else { # There's only one edition in the WIM file.
             Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $WIMEditions[0].ImageName + " (" + $WIMEditions[0].ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete 0
-            Sub_InjectVMwareTools $InstallWIMFilePath $InstallWIMMountPath $WIMEditions[0].ImageIndex $VMwareToolsScratchDir
+            CopyPostSetupFiles $InstallWIMFilePath $InstallWIMMountPath $WIMEditions[0].ImageIndex
         }
     }
 
-    Function Sub_InjectVMwareTools ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex, [string] $VMwareToolsSource) {
-        Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
-        Copy-Item ($VMwareToolsSource + "\*") ($MountPath + "\") -Recurse -Force # | Out-Null
-        Dismount-WindowsImage -Path $MountPath -Save
-    }
+    # Function Sub_InjectVMwareTools ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex, [string] $VMwareToolsSource) {
+    #     # Scratch directory for VMware Tools
+    # 
+    #     # Prepare everything we need in the VMware Tools scratch directory.
+    #     mkdir $VMwareToolsScratchDir #... and our temporary directory for VMware Tools
+    # 
+    #     # Extract the VMware Tools ISO
+    # 
+    #     mkdir $MountDir_Setup
+    #     & $7ZipExecutable x $VMwareToolsISOPath ("-o" + (Join-Path -Path $VMwareToolsScratchDir -ChildPath $VMwareTempFolderName)) | Out-Null
+    #     Copy-Item ($VMwareToolsSource + "\*") ($MountPath + "\") -Recurse -Force # | Out-Null
+    # }
+    # 
+    # Function Sub_InjectPostPatch ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
+    #     
+    # }
 
     Function CleanWIM ([string] $WIMFilePath, $KeepEditions) {
         $OLD = $WIMFilePath + ".old"
@@ -389,8 +447,8 @@ rmdir C:\Windows\Setup\Scripts /s /q
         Dismount-WindowsImage -Path $WIMScratchDir -Save
     }
 
-    if($InjectVMwareTools) {
-        InjectVMwareTools
+    if($InjectVMwareTools -or $InjectPostPatch) {
+        InjectExtraPatches
     }
 
     # "Leave our mark" (in other words, modify the contents of the final image in some sort of way to make it easily identifiable if a given ISO has already been modified by this tool.)
