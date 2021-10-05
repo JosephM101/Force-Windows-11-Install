@@ -1,7 +1,6 @@
 # Force-Windows-11-Install
 
-### How it works:
-The tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
+## Background
 
 **Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)**
 
@@ -12,7 +11,8 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 This workaround may be borked by a future Windows update where the requirements are baked into the operating system itself, in which case it just wouldn't work. Also note that upgrades to newer versions of Windows 11 through Windows Update will not install.
 
 # Win11-TPM-RegistryBypass (Recommended)
-This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered unsupported hardware. A Windows 10 ISO is not required for this method.
+### How it works:
+This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer on what is considered incompatible hardware. A Windows 10 ISO is not required for this method.
 
 ## Usage
 #### NOTE: This tutorial assumes that the Windows 11 ISO you want to use is in the directory of the repository.
@@ -36,9 +36,12 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 
 - `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
 
+--------
 
 # Win11-ImageBuilder (Old)
-Creates a hybrid ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements. This workaround will allow a user to install Windows 11 on these devices by using the Windows 10 installer, which does not have the same restrictions. Requires a Windows 10 ISO.
+This tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
+
+In other words, it creates a "hybrid" ISO image that houses the Windows 11 install files in a Windows 10 installer image to bypass the TPM and Secure Boot install-time requirements. This workaround will allow a user to install Windows 11 on incompatible devices by using the Windows 10 installer, which does not have the same restrictions. **Requires a Windows 10 ISO.**
 
 ## Usage
 #### If you're looking to create an image that contains an .ESD instead of a .WIM, use the instructions in [ESD Conversion](#esd-conversion) as well. Note that the source installer (the Windows 10 image) has to already have an ESD file, otherwise the installer won't have been configured for ESD installations, and therefore will not recognize the file.
