@@ -33,9 +33,15 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 
 ## Extra switches
 **Note that any options that modify install.wim may result in the process taking longer. If the Windows image contains more than one edition, you will be asked to select one or more editions to modify. Any editions not selected will not be included in the final image.**
+### Modifications
 - `-InjectVMwareTools` - Injects the VMware tools installer into the install.wim image to run when the system boots for the first time. VMware needs to be installed, and the VMware Tools ISO needs to exist in its application folder. The process is modifying install.wim, and may take significantly longer.
 
 - `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
+
+### Other switches
+- `-Verbose` - Enable verbose output
+
+- `-GuiSelectMode` - Shows a GUI for selecting multiple editions to modify as opposed to the CLI-based selection method
 
 --------
 
