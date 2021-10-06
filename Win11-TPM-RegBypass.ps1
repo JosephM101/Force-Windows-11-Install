@@ -23,6 +23,8 @@ param
 
 process
 {
+#null:
+#command > $null
     try {
         Import-Module -Name DISM
     }
