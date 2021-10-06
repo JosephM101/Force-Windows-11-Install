@@ -3,7 +3,9 @@
 # Win11-TPM-RegistryBypass
 This tool creates a modified Windows 11 installer ISO using an existing one, containing a registry hack that bypasses the setup-time compatibility checks, as well as an experimental patch that forces feature updates installed through Windows Update to install, despite incompatibilities.
 
-**Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)**
+**Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)
+
+I also have a command-line interface tool for UUP Dump currently in development, so that with a single command you can download the latest update package for a given channel, and run the scripts to generate an installable ISO for use with this tool. You can check out the project [here](https://github.com/JosephM101/uupdump_cli#one-line-run)**
 
 ### How it works:
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer. There are extra switches that can be passed for further patching, such as one that allows for forcing Windows Updates to skip compatibility checks; see [extra switches](#extra-switches) for more. A Windows 10 ISO is not required for this method.
