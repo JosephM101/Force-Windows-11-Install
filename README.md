@@ -9,10 +9,7 @@ This tool creates a modified Windows 11 installer ISO using an existing one, con
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer. There are extra switches that can be passed for further patching, such as one that allows for forcing Windows Updates to skip compatibility checks; see [extra switches](#extra-switches) for more. A Windows 10 ISO is not required for this method.
 
 ### Why?
-The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11. 
-
-### Things to note
-You are solely responsible for any issues that occur by installing Windows 11 on incompatible hardware.
+The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11.
 
 ## Usage
 #### NOTE: This tutorial assumes that the Windows 11 ISO you want to use is in the directory of the repository.
