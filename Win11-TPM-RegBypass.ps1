@@ -91,6 +91,12 @@ process
         }
     }
 
+    Function FVerbose ($func){
+        if($Verbose) {
+            Write-Host $func
+        }
+    }
+
     Function GetPercentageFromRange ($value, $minV, $maxV) {
         $percentage = ($value - $minV) / ($maxV - $minV)
         return [int] ($percentage * 100)
@@ -140,7 +146,7 @@ process
         #Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
 	    #    Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
         #}
-        Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\WIMMount\Mounted Images" | Get-ItemProperty | Select-Object -ExpandProperty "Mount Path" | ForEach-Object {Dismount-WindowsImage -Path $_ -Discard}
+        FVerbose | Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\WIMMount\Mounted Images" | Get-ItemProperty | Select-Object -ExpandProperty "Mount Path" | ForEach-Object {Dismount-WindowsImage -Path $_ -Discard}
     }
 
     Function TerminateS_Premature {
@@ -273,9 +279,9 @@ rmdir C:\Windows\Setup\Scripts /s /q
     }
 
     Function CopyPostSetupFiles ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
-        Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
-        Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
-        Dismount-WindowsImage -Path $MountPath -Save
+        FVerbose | Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
+        FVerbose | Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
+        FVerbose | Dismount-WindowsImage -Path $MountPath -Save
     }
 
     Function InjectExtraPatches {
@@ -532,12 +538,12 @@ rmdir C:\Windows\Setup\Scripts /s /q
     if(-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
     {
         # Mount boot.wim for editing
-        Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
+        FVerbose | Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
         # Add our registry keys
         InjectRegistryKeys
         # Unmount WIM; save changes
         Write-Progress -Activity $ActivityName -Status "Dismounting boot.wim; saving changes..." -PercentComplete 70
-        Dismount-WindowsImage -Path $WIMScratchDir -Save
+        FVerbose | Dismount-WindowsImage -Path $WIMScratchDir -Save
     }
 
     # Check if we need to modify install.wim, and act accordingly
