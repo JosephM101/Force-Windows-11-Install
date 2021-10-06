@@ -5,7 +5,9 @@ This tool creates a modified Windows 11 installer ISO using an existing one, con
 
 **Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)**
 
-**I also have a command-line interface tool for UUP Dump currently in development, so that with a single command you can download the latest update package for a given channel, and run the scripts to generate an installable ISO for use with this tool. Requires Python 3 and the `requests` module. You can check out the project [here](https://github.com/JosephM101/uupdump_cli#one-line-run)**
+**I also have a command-line interface tool for UUP Dump currently in development, so that with a single command you can download the latest update package for a given channel, and run the scripts to generate an installable ISO for use with this tool. Requires Python 3 and the `requests` module. You can check out the project [here](https://github.com/JosephM101/uupdump_cli#one-line-run).**
+
+------
 
 ### How it works:
 This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that cause the installer to skip TPM, Secure Boot, and memory checks (it seems to also skip CPU compatibility checks), allowing the user to install Windows 11 using the original installer. There are extra switches that can be passed for further patching, such as one that allows for forcing Windows Updates to skip compatibility checks; see [extra switches](#extra-switches) for more. A Windows 10 ISO is not required for this method.
@@ -17,8 +19,8 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 #### NOTE: This tutorial assumes that the Windows 11 ISO you want to use is in the directory of the repository.
 - In the repository directory, run `env.bat`. This will open up a new elevated PowerShell window in the repository.
 - Type `.\Win11-TPM-RegBypass.ps1` in the PowerShell window, but don't hit Enter just yet.
-- Follow up with `-Source`. This is where you're going to define the location of the Windows 11 ISO you want to use. So, copy the full filename of the ISO image you copied to the repository directory, and paste it in the PowerShell window.
-**TIP: If your Windows 11 ISO is not in the same directory as the script, you can locate the ISO with File Explorer, select it, then click "Copy path" in the File Explorer ribbon.** 
+- Follow up with `-Source`. This is where you're going to define the location of the Windows 11 ISO you want to use.
+**TIP: If your Windows 11 ISO is not in the same directory as the script, you can locate the ISO with File Explorer, select it, then click "Copy path" in the File Explorer ribbon, or hold down Shift and right-click the file, the click "Copy as path" in the context menu.** 
 
 ![image](https://user-images.githubusercontent.com/28277730/127249747-aee0fda7-bfaa-450b-b58b-1b3030ba0e56.png)
 
@@ -27,18 +29,15 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 
 `.\Win11-TPM-RegBypass.ps1 -Source "22000.100.210719-2150.CO_RELEASE_SVC_PROD2_CLIENTPRO_OEMRET_X64FRE_EN-US.ISO" -Destination "Win11-New.iso"`
 ![image](https://user-images.githubusercontent.com/28277730/127249867-bd20873a-8b5d-45fc-bb1d-942a12c8edcc.png)
-- Now you can hit Enter. The script should start running, and provided everything works correctly, you should now have a new bootable Windows 11 ISO image without the TPM or Secure Boot restrictions.
+- Now you can press Enter. The script should start running, and provided everything works correctly, you should now have a new bootable Windows 11 ISO image without the TPM or Secure Boot restrictions.
 
 ## Extra switches
-**Note that any options that modify install.wim may result in the process taking longer.**
+**Note that any options that modify install.wim may result in the process taking longer. If the Windows image contains more than one edition, you will be asked to select one or more editions to modify. Any editions not selected will not be included in the final image.**
 - `-InjectVMwareTools` - Injects the VMware tools installer into the install.wim image to run when the system boots for the first time. VMware needs to be installed, and the VMware Tools ISO needs to exist in its application folder. The process is modifying install.wim, and may take significantly longer.
 
 - `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
 
 --------
-
-# Win11-ImageBuilder (Obsolete)
-This tool has been marked obsolete, and is no longer maintained. For the documentation on the tool, [navigate here](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/Documentation%20for%20Win11-ImageBuilder.md).
 
 ### ESD Conversion
 If you're looking to create an ESD file to use instead of a WIM, follow these instructions.
@@ -51,6 +50,11 @@ Before the image gets created, the script will pause, allowing you to convert th
 
 When the script pauses, go to `C:\Scratch\W10\sources`, and MOVE the `install.wim` file to the repository directory. Inside the repository is a script from https://github.com/joeldidier/Simple-WIM2ESD---ESD2WIM-Converter that allows for converting WIM to ESD (and vice versa, if you so wished to do so). Run the script, and follow the instructions.
 Once complete, move (or copy; your choice) the `install.esd` file from the repository directory back to `C:\Scratch\W10\sources`. Go back to the PowerShell window running this script, type "continue", and press Enter. The script will build the ISO and exit.
+
+--------
+
+# Win11-ImageBuilder (Obsolete)
+This tool has been marked obsolete, and is no longer maintained. For the documentation on the tool, [navigate here](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/Documentation%20for%20Win11-ImageBuilder.md).
 
 --------
 
