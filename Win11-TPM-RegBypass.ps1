@@ -336,7 +336,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
             $ModifyAll = $false
 
             $WIMEditionsCount = 1..$WIMEditions.Count
-            $options = New-Object System.Collectio ns.Generic.HashSet[int]
+            $options = New-Object System.Collections.Generic.HashSet[int]
 
             if($GuiSelectMode) {
                 $selected = $EditionList | Out-GridView -Title "Select editions to modify. Leave none selected to modify all." -OutputMode Multiple
