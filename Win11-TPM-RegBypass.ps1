@@ -87,7 +87,7 @@ process
         if($Verbose) {
             mkdir $path
         } else {
-            ($dc = mkdir $path) > $null
+            (mkdir $path) > $null
         }
     }
 
