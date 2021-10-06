@@ -83,6 +83,13 @@ process
     #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
     $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
     
+    Function MakeDirectory ($path) {
+        if($Verbose) {
+            mkdir $path
+        } else {
+            ($dc = mkdir $path) > $null
+        }
+    }
 
     Function GetPercentageFromRange ($value, $minV, $maxV) {
         $percentage = ($value - $minV) / ($maxV - $minV)
@@ -220,8 +227,8 @@ process
 
     Function GeneratePostSetupFileStructure {
         # Create the directories everything will be prepared in
-        mkdir $Temp_PostSetupOperations
-        mkdir $Temp_PostSetupOperations_ScriptDirectory
+        MakeDirectory $Temp_PostSetupOperations
+        MakeDirectory $Temp_PostSetupOperations_ScriptDirectory
         
         # Generate SetupComplete.cmd file
         $SetupCompleteCMD = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath "SetupComplete.cmd"
@@ -253,7 +260,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
         # If VMware Tools injection was selected, copy the contents of the installer to the root of the structure; folder name defined by $VMwareTempFolderName
         if($InjectVMwareTools) {
             # Make our temporary directory for VMware Tools
-            mkdir $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
+            MakeDirectory $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
             # Extract the VMware Tools ISO to that directory
             & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
         }
@@ -274,7 +281,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
     Function InjectExtraPatches {
         AnnounceProgress_RunningExtraTasks
         Write-Host "Preparing to modify install.wim..."
-        mkdir $InstallWIMMountPath # Make our mount directory for install.wim...
+        MakeDirectory $InstallWIMMountPath # Make our mount directory for install.wim...
 
         GeneratePostSetupFileStructure
 
@@ -458,11 +465,11 @@ rmdir C:\Windows\Setup\Scripts /s /q
     #     # Scratch directory for VMware Tools
     # 
     #     # Prepare everything we need in the VMware Tools scratch directory.
-    #     mkdir $VMwareToolsScratchDir #... and our temporary directory for VMware Tools
+    #     MakeDirectory $VMwareToolsScratchDir #... and our temporary directory for VMware Tools
     # 
     #     # Extract the VMware Tools ISO
     # 
-    #     mkdir $MountDir_Setup
+    #     MakeDirectory $MountDir_Setup
     #     & $7ZipExecutable x $VMwareToolsISOPath ("-o" + (Join-Path -Path $VMwareToolsScratchDir -ChildPath $VMwareTempFolderName)) | Out-Null
     #     Copy-Item ($VMwareToolsSource + "\*") ($MountPath + "\") -Recurse -Force # | Out-Null
     # }
@@ -507,7 +514,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
         Write-Host "Windows 11 image exists" -ForegroundColor Green
     }
     CleanupScratch # Just in case anything was left over from any previous runs as a result of an error
-    mkdir -Path $ScratchDir
+    MakeDirectory -Path $ScratchDir
     # Check for evidence that the image was previously modified. If there is any, warn the user.
     & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
     if(Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
@@ -520,7 +527,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
     & $7ZipExecutable x $Source ("-o" + $Win11ScratchDir) | Out-Null
     Write-Progress -Activity "$ActivityName" -Status "Mounting boot.wim" -PercentComplete 50
     # Make directory for DISM mount
-    mkdir -Path $WIMScratchDir
+    MakeDirectory -Path $WIMScratchDir
 
     if(-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
     {
