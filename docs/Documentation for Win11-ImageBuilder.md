@@ -31,3 +31,15 @@ For `DestinationImage`, you need to type the path to where you want the image to
 
 You could also run the script directly from PowerShell without going through File Explorer, which would also give you the option to pass the `-VerboseOutput` switch, which shows the output of the processes that the script executes (`7z` and `oscdimg`). The command would look something like this:
 `.\Win11-ImageBuilder.ps1 -Win10Image [Path] -Win11Image [Path] -DestinationImage [Destination] -VerboseOutput`
+
+### ESD Conversion
+If you're looking to create an ESD file to use instead of a WIM, follow these instructions.
+In PowerShell, when invoking the script, use `-EditMode`. This will delay the creation of the images until you type 'continue', allowing the image to be modified.
+
+Your command should look like this:
+`.\Win11-ImageBuilder.ps1 -Win10Image "[PATH]" -Win11Image "[PATH]" -DestinationImage "[PATH]" -EditMode`
+
+Before the image gets created, the script will pause, allowing you to convert the WIM file to ESD before the ISO gets created. Let's do that here.
+
+When the script pauses, go to `C:\Scratch\W10\sources`, and MOVE the `install.wim` file to the repository directory. Inside the repository is a script from https://github.com/joeldidier/Simple-WIM2ESD---ESD2WIM-Converter that allows for converting WIM to ESD (and vice versa, if you so wished to do so). Run the script, and follow the instructions.
+Once complete, move (or copy; your choice) the `install.esd` file from the repository directory back to `C:\Scratch\W10\sources`. Go back to the PowerShell window running this script, type "continue", and press Enter. The script will build the ISO and exit.
