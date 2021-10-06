@@ -333,10 +333,14 @@ rmdir C:\Windows\Setup\Scripts /s /q
             # } while (-not ($Multi_Options -ge 0 -and $Multi_Options -le ($WIMEditions.Count))) # until ($?)
 
             # Ask user to select what editions to modify
+            $ModifyAll = $false
+
             $WIMEditionsCount = 1..$WIMEditions.Count
             $options = New-Object System.Collections.Generic.HashSet[int]
 
             if($GuiSelectMode) {
+                $options = $WIMEditionsCount | Out-GridView -Title "Select editions to modify. Leave none selected to modify all." -OutputMode Multiple
+            } else {
                 Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
                 do {
                     $userInput = Read-Host "($options)"
@@ -361,26 +365,26 @@ rmdir C:\Windows\Setup\Scripts /s /q
                         $options.Add($userInput) | Out-Null
                     }
                 } while ($userInput -ne "")
-            }
-	    
-	        $ModifyAll = $false
-	    
-            if($options.Count -eq 0) {
-                Write-Host "Modifying all..."
-		        $ModifyAll = $true
-            }
-            else {
-                Write-Host "Selected: $options"
+
+                if($options.Count -eq 0) {
+                    Write-Host "Modifying all..."
+                    $ModifyAll = $true
+                }
+                else {
+                    Write-Host "Selected: $options"
+                }
+
+                $Selection = foreach($indexEntry in $options) {
+                    try {
+                        [int]::Parse($indexEntry)
+                        #Write-Host $indexEntry
+                    }
+                    catch{}
+                }
             }
 
             #$Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
-            $Selection = foreach($indexEntry in $options) {
-                try {
-                    [int]::Parse($indexEntry)
-                    #Write-Host $indexEntry
-                }
-                catch{}
-            }
+            
 
             if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If we selected individuals, we're of course not doing them all. Find if a 0 exists, and remove it if the length of the list is larger than 1
                 $Selection = $Selection | Where-Object { $_ -ne 0 }
