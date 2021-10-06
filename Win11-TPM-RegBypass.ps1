@@ -276,17 +276,22 @@ rmdir C:\Windows\Setup\Scripts /s /q
 
         if($WIMEditions.Count -gt 1) {
             # If install.wim has more than one edition, give the user the option to choose one or all.
-            $EditionList = @("0: Modify all editions")
+	    
+	    # Create an empty list
+            #$EditionList = @("0: Modify all editions")
+	    $EditionList = @()
+	    
             Write-Host "The install.wim image contains multiple editions. Enter the index number of the edition(s) you want to use (editions not selected will not be included in the new image), or type 0 to modify all (may take a very long time)" -ForegroundColor Yellow
             Write-Host ""
-            # Sift through editions
+	    
+            # Go through and log editions
             foreach ($WIMedition in $WIMEditions) {
                 $EditionList += ($WIMedition.ImageIndex.ToString() + ": " + $WIMedition.ImageName)
             }
             # Print editions from $EditionList
             $EditionList | ForEach-Object {"$PSItem"}
 
-            Write-Host ""
+            Write-Host "" # Write empty line
 
             # Request choice from user
             # # $WIMCountStr = $WIMEditions.Count.ToString()
@@ -351,9 +356,12 @@ rmdir C:\Windows\Setup\Scripts /s /q
                     $options.Add($userInput) | Out-Null
                 }
             } while ($userInput -ne "")
-
+	    
+	    $ModifyAll = $false
+	    
             if($options.Count -eq 0) {
                 Write-Host "Modifying all..."
+		$ModifyAll = $true
             }
             else {
                 Write-Host "Selected: $options"
@@ -378,7 +386,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
             Write-Host "Selected:"
             $Selection | ForEach-Object { $WIMEditions[$PSItem - 1].ImageName }
 
-            if($Selection[0] -eq 0) {
+            if($ModifyAll) {
                 Write-Host "Processing all"
                 foreach ($edition in $WIMEditions) {
                     $PercentageComplete = GetPercentageFromRange $edition.ImageIndex 0 $WIMEditions.Count
