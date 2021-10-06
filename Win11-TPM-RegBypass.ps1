@@ -15,6 +15,9 @@ param
     $InjectPostPatch = $false,
 
     [switch]
+    $GuiSelectMode = $false,
+
+    [switch]
     $SkipReg = $false
 )
 
