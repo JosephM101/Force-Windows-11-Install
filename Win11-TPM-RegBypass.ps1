@@ -351,12 +351,12 @@ rmdir C:\Windows\Setup\Scripts /s /q
                 $Selection = foreach($item in $selected) {
                     try {
                         #[int]::Parse($item)
-			($EditionList.indexOf($item) + 1)
+			            ($EditionList.indexOf($item) + 1)
                         Write-Host $item
                     }
                     catch{}
                 }
-		Write-Host $Selection
+		        # Write-Host $Selection
             } else {
                 Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
                 do {
