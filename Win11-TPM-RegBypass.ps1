@@ -342,7 +342,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
                 $selected = $EditionList | Out-GridView -Title "Select editions to modify. Leave none selected to modify all." -OutputMode Multiple
 
                 if($selected.Count -eq 0) {
-                    Write-Host "Modifying all..."
+                    #Write-Host "Modifying all..."
                     $ModifyAll = $true
                 } else {
                     #Write-Host "Selected: $selected"
@@ -351,11 +351,12 @@ rmdir C:\Windows\Setup\Scripts /s /q
                 $Selection = foreach($item in $selected) {
                     try {
                         #[int]::Parse($item)
-			($WIMEditions.indexOf($item) + 1)
+			($EditionList.indexOf($item) + 1)
                         Write-Host $item
                     }
                     catch{}
                 }
+		Write-Host $Selection
             } else {
                 Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
                 do {
@@ -383,7 +384,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
                 } while ($userInput -ne "")
 
                 if($options.Count -eq 0) {
-                    Write-Host "Modifying all..."
+                    #Write-Host "Modifying all..."
                     $ModifyAll = $true
                 }
                 else {
@@ -400,7 +401,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
             }
 
             #$Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
-            
 
             if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If we selected individuals, we're of course not doing them all. Find if a 0 exists, and remove it if the length of the list is larger than 1
                 $Selection = $Selection | Where-Object { $_ -ne 0 }
@@ -409,7 +409,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
             $Selection = $Selection | Select-Object -uniq # Remove duplicates from the array; not really necessary considering that the above selection method does that for us. We'll just keep it here for good measure.
 
             # Print the selection
-            Write-Host "Selected:"
+            # Write-Host "Selected:"
             $Selection | ForEach-Object { $WIMEditions[$PSItem - 1].ImageName }
 
             if($ModifyAll) {
