@@ -40,7 +40,6 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 
 ### Other switches
 - `-Verbose` - Enable verbose output
-
 - `-GuiSelectMode` - Shows a GUI for selecting multiple editions to modify as opposed to the CLI-based selection method
 
 --------
