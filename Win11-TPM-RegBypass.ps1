@@ -18,7 +18,7 @@ param
     $GuiSelectMode = $false,
 
     [switch]
-    $VerboseOutput,
+    $Verbose,
 
     [switch]
     $SkipReg = $false
