@@ -16,7 +16,7 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11.
 
 ## Usage
-#### NOTE: This walkthrough assumes that the Windows 11 ISO you want to use is in the directory of the repository.
+#### TIP: It's recommended to copy or move the Windows 11 ISO image to the same directory as the script to make things easy.
 - In the repository directory, run `env.bat`. This will open up a new elevated PowerShell window in the repository.
 - Type `.\Win11-TPM-RegBypass.ps1` in the PowerShell window, but don't hit Enter just yet.
 - Follow up with `-Source`. This is where you're going to define the location of the Windows 11 ISO you want to use.
