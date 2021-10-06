@@ -339,7 +339,23 @@ rmdir C:\Windows\Setup\Scripts /s /q
             $options = New-Object System.Collections.Generic.HashSet[int]
 
             if($GuiSelectMode) {
-                $options = $WIMEditionsCount | Out-GridView -Title "Select editions to modify. Leave none selected to modify all." -OutputMode Multiple
+                $selected = $EditionList | Out-GridView -Title "Select editions to modify. Leave none selected to modify all." -OutputMode Multiple
+
+                if($selected.Count -eq 0) {
+                    Write-Host "Modifying all..."
+                    $ModifyAll = $true
+                }
+                else {
+                    Write-Host "Selected: $selected"
+                }
+
+                $Selection = foreach($item in $selected) {
+                    try {
+                        [int]::Parse($item.index)
+                        #Write-Host $indexEntry
+                    }
+                    catch{}
+                }
             } else {
                 Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
                 do {
