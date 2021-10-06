@@ -32,6 +32,8 @@ For `DestinationImage`, you need to type the path to where you want the image to
 You could also run the script directly from PowerShell without going through File Explorer, which would also give you the option to pass the `-VerboseOutput` switch, which shows the output of the processes that the script executes (`7z` and `oscdimg`). The command would look something like this:
 `.\Win11-ImageBuilder.ps1 -Win10Image [Path] -Win11Image [Path] -DestinationImage [Destination] -VerboseOutput`
 
+------
+
 ### ESD Conversion
 If you're looking to create an ESD file to use instead of a WIM, follow these instructions.
 In PowerShell, when invoking the script, use `-EditMode`. This will delay the creation of the images until you type 'continue', allowing the image to be modified.
