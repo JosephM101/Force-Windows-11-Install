@@ -18,6 +18,9 @@ param
     $GuiSelectMode = $false,
 
     [switch]
+    $VerboseOutput,
+
+    [switch]
     $SkipReg = $false
 )
 
@@ -45,9 +48,9 @@ process
     $DefaultWindowStyle = "Normal"
     $ActivityName = "Win11-TPM-Bypass"
 
-    if($VerboseOutput) {
-        $DefaultWindowStyle = "Normal"
-    }
+    # if($VerboseOutput) {
+    #     $DefaultWindowStyle = "Normal"
+    # }
 
     $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
     #$ScriptExec = $script:MyInvocation.MyCommand.Path
