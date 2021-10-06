@@ -291,10 +291,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
             foreach ($WIMedition in $WIMEditions) {
                 $EditionList += ($WIMedition.ImageIndex.ToString() + ": " + $WIMedition.ImageName)
             }
-            # Print editions from $EditionList
-            $EditionList | ForEach-Object {"$PSItem"}
-
-            Write-Host "" # Write empty line
 
             # Request choice from user
             # # $WIMCountStr = $WIMEditions.Count.ToString()
@@ -352,12 +348,15 @@ rmdir C:\Windows\Setup\Scripts /s /q
                     try {
                         #[int]::Parse($item)
 			            ($EditionList.indexOf($item) + 1)
-                        Write-Host $item
+                        #Write-Host $item
                     }
                     catch{}
                 }
-		        # Write-Host $Selection
             } else {
+                # Print editions from $EditionList
+                $EditionList | ForEach-Object {"$PSItem"}
+
+                Write-Host "" # Write empty line
                 Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
                 do {
                     $userInput = Read-Host "($options)"
@@ -399,6 +398,8 @@ rmdir C:\Windows\Setup\Scripts /s /q
                     catch{}
                 }
             }
+
+            # Write-Host $Selection
 
             #$Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
 
