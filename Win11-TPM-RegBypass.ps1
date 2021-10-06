@@ -335,36 +335,39 @@ rmdir C:\Windows\Setup\Scripts /s /q
             # Ask user to select what editions to modify
             $WIMEditionsCount = 1..$WIMEditions.Count
             $options = New-Object System.Collections.Generic.HashSet[int]
-            Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
-            do {
-                $userInput = Read-Host "($options)"
-                if ($userInput -eq "") {
-                    continue
-                }
-                if ($userInput -notin $WIMEditionsCount) {
-                    Write-Host "Invalid value entered."
-                    continue
-                }
-                elseif ($userInput -in $options) {
-                    do {
-                        $inputF = Read-Host -Prompt "$userInput is already selected. Do you want to deselect it? [y/n]"
-                        } while ($userInput -notcontains $inputF)
-                    
-                    if($inputF -eq "y") {
-                        $options.Remove($userInput) | Out-Null
+
+            if($GuiSelectMode) {
+                Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
+                do {
+                    $userInput = Read-Host "($options)"
+                    if ($userInput -eq "") {
+                        continue
                     }
-                    continue
-                }
-                else {
-                    $options.Add($userInput) | Out-Null
-                }
-            } while ($userInput -ne "")
+                    if ($userInput -notin $WIMEditionsCount) {
+                        Write-Host "Invalid value entered."
+                        continue
+                    }
+                    elseif ($userInput -in $options) {
+                        do {
+                            $inputF = Read-Host -Prompt "$userInput is already selected. Do you want to deselect it? [y/n]"
+                            } while ($userInput -notcontains $inputF)
+                        
+                        if($inputF -eq "y") {
+                            $options.Remove($userInput) | Out-Null
+                        }
+                        continue
+                    }
+                    else {
+                        $options.Add($userInput) | Out-Null
+                    }
+                } while ($userInput -ne "")
+            }
 	    
-	    $ModifyAll = $false
+	        $ModifyAll = $false
 	    
             if($options.Count -eq 0) {
                 Write-Host "Modifying all..."
-		$ModifyAll = $true
+		        $ModifyAll = $true
             }
             else {
                 Write-Host "Selected: $options"
