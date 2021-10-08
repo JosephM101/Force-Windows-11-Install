@@ -1,4 +1,4 @@
-### Note that this method is now obsolete. The script and its documentation are no longer being maintained/updated.
+### Note that this method is obsolete. The script and its documentation are no longer being maintained/updated.
 
 # Win11-ImageBuilder (Obsolete)
 This tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
@@ -43,5 +43,5 @@ Your command should look like this:
 
 Before the image gets created, the script will pause, allowing you to convert the WIM file to ESD before the ISO gets created. Let's do that here.
 
-When the script pauses, go to `C:\Scratch\W10\sources`, and MOVE the `install.wim` file to the repository directory. Inside the repository is a script from https://github.com/joeldidier/Simple-WIM2ESD---ESD2WIM-Converter that allows for converting WIM to ESD (and vice versa, if you so wished to do so). Run the script, and follow the instructions.
+When the script pauses, go to `C:\Scratch\W10\sources`, and MOVE the `install.wim` file to the repository directory. Navigate to [this GitHub repository](https://github.com/joeldidier/Simple-WIM2ESD---ESD2WIM-Converter), clone it, and copy the `DISM` folder and the `Simple-WIM2ESD---ESD2WIM-Converter.bat` file to the repository directory, and follow the instructions for running the script.
 Once complete, move (or copy; your choice) the `install.esd` file from the repository directory back to `C:\Scratch\W10\sources`. Go back to the PowerShell window running this script, type "continue", and press Enter. The script will build the ISO and exit.
