@@ -18,7 +18,7 @@ param
     $GuiSelectMode = $false,
 
     [switch]
-    $Verbose = $false,
+    $VerboseMode = $false,
 
     [switch]
     $SkipReg = $false
@@ -28,6 +28,21 @@ process
 {
 #null:
 #command > $null
+
+    Function MakeDirectory ($path) {
+        if($VerboseMode) {
+            mkdir $path
+        } else {
+            (mkdir $path) > $null
+        }
+    }
+
+    Function FVerbose ($func){
+        if($VerboseMode) {
+            Write-Host $func
+        }
+    }
+
     try {
         Import-Module -Name DISM
     }
@@ -48,7 +63,7 @@ process
     $DefaultWindowStyle = "Normal"
     $ActivityName = "Win11-TPM-Bypass"
 
-    # if($VerboseOutput) {
+    # if($VerboseMode) {
     #     $DefaultWindowStyle = "Normal"
     # }
 
@@ -82,20 +97,6 @@ process
     $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
     #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
     $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
-    
-    Function MakeDirectory ($path) {
-        if($Verbose) {
-            mkdir $path
-        } else {
-            (mkdir $path) > $null
-        }
-    }
-
-    Function FVerbose ($func){
-        if($Verbose) {
-            Write-Host $func
-        }
-    }
 
     Function GetPercentageFromRange ($value, $minV, $maxV) {
         $percentage = ($value - $minV) / ($maxV - $minV)
