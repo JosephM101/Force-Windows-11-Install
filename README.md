@@ -45,7 +45,7 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 --------
 
 # Win11-ImageBuilder (Obsolete)
-This tool has been marked obsolete, and is no longer maintained. For the documentation on the tool, [navigate here](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/Documentation%20for%20Win11-ImageBuilder.md).
+Win11-ImageBuilder has been marked obsolete, and is no longer maintained. For the documentation on the tool, [navigate here](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/Documentation%20for%20Win11-ImageBuilder.md).
 
 --------
 
