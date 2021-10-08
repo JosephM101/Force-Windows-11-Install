@@ -43,5 +43,5 @@ Your command should look like this:
 
 Before the image gets created, the script will pause, allowing you to convert the WIM file to ESD before the ISO gets created. Let's do that here.
 
-When the script pauses, go to `C:\Scratch\W10\sources`, and MOVE the `install.wim` file to the repository directory. Navigate to this [repository](https://github.com/joeldidier/Simple-WIM2ESD---ESD2WIM-Converter), clone it, and follow the instructions for running the script.
+When the script pauses, go to `C:\Scratch\W10\sources`, and MOVE the `install.wim` file to the repository directory. Navigate to [this GitHub repository](https://github.com/joeldidier/Simple-WIM2ESD---ESD2WIM-Converter), clone it, and copy the `DISM` folder and the `Simple-WIM2ESD---ESD2WIM-Converter.bat` file to the repository directory, and follow the instructions for running the script.
 Once complete, move (or copy; your choice) the `install.esd` file from the repository directory back to `C:\Scratch\W10\sources`. Go back to the PowerShell window running this script, type "continue", and press Enter. The script will build the ISO and exit.
