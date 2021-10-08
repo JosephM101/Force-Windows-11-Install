@@ -1,4 +1,4 @@
-### Note that this method is now obsolete. The script and its documentation are no longer being maintained/updated.
+### Note that this method is obsolete. The script and its documentation are no longer being maintained/updated.
 
 # Win11-ImageBuilder (Obsolete)
 This tool extracts the contents of an existing Windows 10 iso to a scratch directory using `7z`. It then extracts the installation contents (install.wim) from a Windows 11 iso, deletes the install.wim file from the Windows 10 installer, and replaces it with the install.wim file from the Windows 11 iso. Finally, it uses `oscdimg` (pulled from Windows Deployment Tools) to create a new iso from the Windows 10 installer, which now contains the Windows 11 installation contents.
