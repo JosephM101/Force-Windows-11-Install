@@ -515,7 +515,8 @@ rmdir C:\Windows\Setup\Scripts /s /q
         InjectExtraPatches
     }
 
-    # "Leave our mark" (in other words, modify the contents of the final image in some sort of way to make it easily identifiable if a given ISO has already been modified by this tool.)
+    # "Leave our mark" 
+    # In other words, modify the contents of the final image in some sort of way to make it easily identifiable if a given ISO has already been modified by this tool.
     # In this case, let's copy the registry keys we used to the "sources" directory under the name defined in $sb_bypass_key
     [byte[]]$REGKEY_BYTES = [convert]::FromBase64String($REGISTRY_KEY_FILE_B64)
     [System.IO.File]::WriteAllBytes($sb_bypass_key, $REGKEY_BYTES)
