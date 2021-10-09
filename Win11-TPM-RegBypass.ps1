@@ -233,14 +233,14 @@ process
     }
 
     Function GeneratePostSetupFileStructure {
-        # Create the directories everything will be prepared in
+        # Create the directory structure that will be replicated on the installation images
         MakeDirectory $Temp_PostSetupOperations
         MakeDirectory $Temp_PostSetupOperations_ScriptDirectory
         
         # Generate SetupComplete.cmd file
         $SetupCompleteCMD = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath "SetupComplete.cmd"
 
-        # Define the contents of our SetupComplete.cmd file
+        # Define the contents of the SetupComplete.cmd file
         if($InjectVMwareTools) { $VMwareInstall =
 @"
 C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
@@ -271,7 +271,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
             # Extract the VMware Tools ISO to that directory
             & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
         }
-
         if($InjectPostPatch) {
             $scrFilepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchCMDFilename
             [byte[]]$E_BYTES = [convert]::FromBase64String($POST_PATCH_CMD_FILE_B64)
@@ -310,42 +309,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
             foreach ($WIMedition in $WIMEditions) {
                 $EditionList += ($WIMedition.ImageIndex.ToString() + ": " + $WIMedition.ImageName)
             }
-
-            # Request choice from user
-            # # $WIMCountStr = $WIMEditions.Count.ToString()
-            # $SelectMulti = @()
-            # do 
-            # {
-            #     $SelectedIndex = try {(Read-Host "Enter choice [0-$WIMCountStr], 'M' to select multiple")}
-            #     catch {}
-            #     #$SelectedIndex = try {[int]::Parse($value)} catch {$SelectedIndex = 1}
-            #     [string]$option = $SelectedIndex
-            # } while (-not ($option -contains "M") -or -not ($SelectedIndex -ge 0 -and $SelectedIndex -le ($WIMEditions.Count)))
-            # 
-            # if($option -contains "M")
-            # {
-            #     do 
-            #     {
-            #         try {[ValidatePattern('^[0-9,]+$')]$Multi_Options = (Read-Host "Choose editions, followed by commas (ex. 1,3,6)")}
-            #         catch {}
-            #     } until ($?)
-            # 
-            #     $SelectMulti = foreach($indexEntry in ($Multi_Options -Split ",")) {
-            #         try {
-            #             [int]::Parse($indexEntry)
-            #         }
-            #         catch{}
-            #     }
-            # }
-
-            # $Regex_Default = '^[0-9,]+$'
-            # $PRegex = '^[0-9]+([,]*[0-9]+)*$'
-            # 
-            # do 
-            # {
-            #     try {[ValidatePattern('^[0-9,]+$')]$Multi_Options = (Read-Host "Enter choice(s) [0-$WIMCountStr]. For multiple selections, separate choices with commas (ex. 1,3,6)")}
-            #     catch {}
-            # } while (-not ($Multi_Options -ge 0 -and $Multi_Options -le ($WIMEditions.Count))) # until ($?)
 
             # Ask user to select what editions to modify
             $ModifyAll = $false
