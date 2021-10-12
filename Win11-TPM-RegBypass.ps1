@@ -274,6 +274,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
             & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
         }
         if($InjectPostPatch) {
+            # Old
             $PS1_Contents_v1 = @'
 $N = 'Skip TPM Check on Dynamic Update'
 $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
@@ -283,12 +284,23 @@ $0 = New-Item $K
 Set-ItemProperty $K Debugger $C -force
 $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
 '@
+
+            $PS1_Contents_v2 = @'
+$N = 'Skip TPM Check on Dynamic Update'
+$0 = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
+$C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
+$C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
+$K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+$0=New-Item $K -force -ea 0
+Set-ItemProperty $K 'Debugger' $C -force
+'@
+
             $scrFilepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchCMDFilename
             [byte[]]$E_BYTES = [convert]::FromBase64String($POST_PATCH_CMD_FILE_B64)
             [System.IO.File]::WriteAllBytes($scrFilepath, $E_BYTES)
             $ps1Filepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchPS1Filename
             $stream = [System.IO.StreamWriter] $ps1Filepath
-            $stream.Write(($PS1_Contents_v1 -join "`r`n"))
+            $stream.Write(($PS1_Contents_v2 -join "`r`n"))
             $stream.close()
         }
     }
