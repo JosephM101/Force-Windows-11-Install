@@ -89,6 +89,7 @@ process
 
     $PostSetupScriptsPath = "Windows\Setup\Scripts"
     $PostPatchCMDFilename = "SkipTPM.cmd"
+    $PostPatchPS1Filename = "SkipTPM.ps1"
 
     $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
     $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
@@ -247,9 +248,10 @@ C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
 rmdir C:\$VMwareTempFolderName /s /q
 "@ }
 
+# cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
         if($InjectPostPatch) { $PatchInject =
 @"
-cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
+powershell.exe -executionpolicy Bypass -file "C:\$PostSetupScriptsPath\$PostPatchPS1Filename"
 "@ }
 
         $SetupCompleteCMDContents = 
@@ -272,16 +274,29 @@ rmdir C:\Windows\Setup\Scripts /s /q
             & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
         }
         if($InjectPostPatch) {
+            $PS1_Contents = @'
+$N = 'Skip TPM Check on Dynamic Update'
+$K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+$C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
+$C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
+$0 = New-Item $K
+Set-ItemProperty $K Debugger $C -force
+$0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
+'@
             $scrFilepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchCMDFilename
             [byte[]]$E_BYTES = [convert]::FromBase64String($POST_PATCH_CMD_FILE_B64)
             [System.IO.File]::WriteAllBytes($scrFilepath, $E_BYTES)
+            $ps1Filepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchPS1Filename
+            $stream = [System.IO.StreamWriter] $ps1Filepath
+            $stream.Write(($PS1_Contents -join "`r`n"))
+            $stream.close()
         }
     }
 
     Function CopyPostSetupFiles ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
-        FVerbose | Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
-        FVerbose | Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
-        FVerbose | Dismount-WindowsImage -Path $MountPath -Save
+        Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
+        Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
+        Dismount-WindowsImage -Path $MountPath -Save
     }
 
     Function InjectExtraPatches {
