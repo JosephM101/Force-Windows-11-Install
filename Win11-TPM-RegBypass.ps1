@@ -249,7 +249,7 @@ rmdir C:\$VMwareTempFolderName /s /q
 
         if($InjectPostPatch) { $PatchInject =
 @"
-C:\$PostSetupScriptsPath\$PostPatchCMDFilename
+cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
 "@ }
 
         $SetupCompleteCMDContents = 
