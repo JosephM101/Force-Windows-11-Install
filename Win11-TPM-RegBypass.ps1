@@ -274,7 +274,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
             & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
         }
         if($InjectPostPatch) {
-            $PS1_Contents = @'
+            $PS1_Contents_v1 = @'
 $N = 'Skip TPM Check on Dynamic Update'
 $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
 $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
@@ -288,7 +288,7 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
             [System.IO.File]::WriteAllBytes($scrFilepath, $E_BYTES)
             $ps1Filepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchPS1Filename
             $stream = [System.IO.StreamWriter] $ps1Filepath
-            $stream.Write(($PS1_Contents -join "`r`n"))
+            $stream.Write(($PS1_Contents_v1 -join "`r`n"))
             $stream.close()
         }
     }
