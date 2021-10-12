@@ -16,7 +16,7 @@ jobs:
       
       - name: Convert script to Base64
         run: |
-          powershell -command "$bytes = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes('Win11-TPM-RegBypass.ps1')) && [System.IO.File]::WriteAllBytes('Win11-TPM-RegBypass.cmd', 'powershell -encodedCommand $bytes')"
+          powershell -command "$bytes = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes('Win11-TPM-RegBypass.ps1')) ; [System.IO.File]::WriteAllBytes('Win11-TPM-RegBypass.cmd', 'powershell -encodedCommand $bytes')"
           
       - name: Upload artifact
         uses: actions/upload-artifact@v2.2.4
