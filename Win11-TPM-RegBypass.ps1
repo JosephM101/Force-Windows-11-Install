@@ -171,7 +171,8 @@ process
 
     # Alert the user if the source image has already been modified by this tool
     Function Alert_ImageModified {
-        $inputF = Read-Host -Prompt "Are you sure you want to continue? [y/n]"
+        # $inputF = Read-Host -Prompt "Are you sure you want to continue? [y/n]"
+        $inputF = Read-Host -Prompt "Continue anyway? [y/n]"
         if(($inputF -ne "y") -and ($inputF -ne "n"))
         {
             Write-Host "Invalid input: $inputF" -ForegroundColor Red
@@ -415,14 +416,11 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
             # Write-Host $Selection
             # $Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
 
-            if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If we selected individuals, we're of course not doing them all. Find if a 0 exists, and remove it if the length of the list is larger than 1
+            if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If individual editions were selected, check to see if a 0 exists, and remove it if the length of the list is larger than 1.
                 $Selection = $Selection | Where-Object { $_ -ne 0 }
             }
 
-            $Selection = $Selection | Select-Object -uniq # Remove duplicates from the array; not really necessary considering that the above selection method does that for us. We'll just keep it here for good measure.
-
-            # Print the selection
-            # Write-Host "Selected:"
+            $Selection = $Selection | Select-Object -uniq # Remove duplicates from the array; not really necessary considering that the above selection method prevents that. We'll just keep it here for good measure.
 
             $Selection | ForEach-Object { $WIMEditions[$PSItem - 1].ImageName }
 
@@ -524,18 +522,20 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
     }
     CleanupScratch # Just in case anything was left over from any previous runs as a result of an error
     MakeDirectory -Path $ScratchDir
-    # Check for evidence that the image was previously modified. If there is any, warn the user.
+
+    # Check for evidence that the image was previously modified. If there is any, give the user the option to either continue or stop.
     & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
     if(Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
     {
-        Write-Host "Looks like you've already used this tool on this ISO. Continuing is not recommended as it hasn't been tested."
+        Write-Host "Looks like you've already used this tool on this ISO. Continuing to use it is not recommended as it may have undesirable results."
         Alert_ImageModified
     }    
     Write-Progress -Activity "$ActivityName" -Status "Extracting image" -PercentComplete 0
-    # Extract source ISO to scratch directory
+    # Extract ISO contents to scratch directory
     & $7ZipExecutable x $Source ("-o" + $Win11ScratchDir) | Out-Null
     Write-Progress -Activity "$ActivityName" -Status "Mounting boot.wim" -PercentComplete 50
-    # Make directory for DISM mount
+
+    # Make directory to mount WIM images to
     MakeDirectory -Path $WIMScratchDir
 
     if(-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
