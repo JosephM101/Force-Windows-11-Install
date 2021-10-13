@@ -12,9 +12,9 @@ process
 
     function SetChannel ($channel) {
         try {
-            Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PreviewBuilds" -Name "AllowBuildPreview" -Value 1 -Force
-            Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsSelfHost\Applicability" -Name "EnablePreviewBuilds" -Value 1 -Force
-            Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsSelfHost\Applicability" -Name "IsBuildFlightingEnabled" -Value 1 -Force
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PreviewBuilds" -Name "AllowBuildPreview" -Value 1 -Force
+            Set-ItemProperty -Path $RK1 -Name "EnablePreviewBuilds" -Value 1 -Force
+            Set-ItemProperty -Path $RK1 -Name "IsBuildFlightingEnabled" -Value 1 -Force
             
             Set-ItemProperty -Path $RK1 -Name "BranchName" -Value $channel -ErrorAction "Stop"
             Set-ItemProperty -Path $RK1 -Name "ContentType" -Value "Mainline" -ErrorAction "Stop"
