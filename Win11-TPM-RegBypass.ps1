@@ -48,14 +48,14 @@ process
     Function PrintTimespan {
         params(
             [string] $Prefix,
-            [Parameter(Mandatory)] $DateTime,
+            [Parameter(Mandatory)] $Timespan,
             [string] $Suffix
         )
 
         if($ShowTimestamps) {
             $stringBuilder = [System.Text.StringBuilder]::new()
             [void]$sb.Append($Prefix)
-            [void]$sb.Append($(FormatTimespan $DateTime))
+            [void]$sb.Append($(FormatTimespan $Timespan))
         }
     }
 
@@ -323,7 +323,8 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
 
         # Print time elapsed
         $elapsedTime = $(get-date) - $StartTime
-        Write-Host "Modifying edition index $WIMIndex took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+        # Write-Host "Modifying edition index $WIMIndex took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+        PrintTimespan -Prefix "Modifying edition index $WIMIndex took" -Timespan $elapsedTime
     }
 
     Function InjectExtraPatches {
