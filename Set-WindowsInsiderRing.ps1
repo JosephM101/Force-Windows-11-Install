@@ -18,12 +18,13 @@ process
         Set-ItemProperty -Path $RK2 -Name "UIBranch" -Value $channel
         Set-ItemProperty -Path $RK2 -Name "UIContentType" -Value "Mainline"
         Set-ItemProperty -Path $RK2 -Name "UIRing" -Value "External"
+        Write-Host "Done! Your PC may need to be restarted for changes to take effect."
     }
 
     switch ($Ring) {
         'Dev' { SetChannel "Dev" }
         'Beta' { SetChannel "Beta" }
         'ReleasePreview' { SetChannel "ReleasePreview" }
-        Default { Write-Host "Not a valid branch. Must be Dev, Beta, or ReleasePreview."}
+        Default { Write-Host "Not a valid branch. Must be 'Dev', 'Beta', or 'ReleasePreview.'"}
     }
 }
