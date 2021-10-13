@@ -21,6 +21,9 @@ param
     $VerboseMode = $false,
 
     [switch]
+    $ShowTimestamps = $true,
+
+    [switch]
     $SkipReg = $false
 )
 
