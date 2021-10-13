@@ -18,9 +18,6 @@ param
     $GuiSelectMode = $false,
 
     [switch]
-    $VerboseMode = $false,
-
-    [switch]
     $ShowTimestamps = $true,
 
     [switch]
