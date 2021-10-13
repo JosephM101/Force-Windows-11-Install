@@ -7,18 +7,24 @@ param
 
 process
 {
+    $ErrorActionPreference = 
+
     $RK1 = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\Applicability"
     $RK2 = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection"
 
     function SetChannel ($channel) {
-        Set-ItemProperty -Path $RK1 -Name "BranchName" -Value $channel
-        Set-ItemProperty -Path $RK1 -Name "ContentType" -Value "Mainline"
-        Set-ItemProperty -Path $RK1 -Name "Ring" -Value "External"
-
-        Set-ItemProperty -Path $RK2 -Name "UIBranch" -Value $channel
-        Set-ItemProperty -Path $RK2 -Name "UIContentType" -Value "Mainline"
-        Set-ItemProperty -Path $RK2 -Name "UIRing" -Value "External"
-        Write-Host "Done! Your PC may need to be restarted for changes to take effect."
+        try {
+            Set-ItemProperty -Path $RK1 -Name "BranchName" -Value $channel -ErrorAction "Stop"
+            Set-ItemProperty -Path $RK1 -Name "ContentType" -Value "Mainline" -ErrorAction "Stop"
+            Set-ItemProperty -Path $RK1 -Name "Ring" -Value "External" -ErrorAction "Stop"
+            Set-ItemProperty -Path $RK2 -Name "UIBranch" -Value $channel -ErrorAction "Stop"
+            Set-ItemProperty -Path $RK2 -Name "UIContentType" -Value "Mainline" -ErrorAction "Stop"
+            Set-ItemProperty -Path $RK2 -Name "UIRing" -Value "External" -ErrorAction "Stop"
+            Write-Host "Done! Your PC may need to be restarted for changes to take effect."
+        } catch {
+            Write-Host "There was a problem setting the Insider Ring. You may not have the necessary privileges to do so. Check to see if you're running this script as an administrator, then try again." -ForegroundColor Red
+            Exit
+        }
     }
 
     switch ($Ring) {
@@ -27,4 +33,5 @@ process
         'ReleasePreview' { SetChannel "ReleasePreview" }
         Default { Write-Host "Not a valid branch. Must be 'Dev', 'Beta', or 'ReleasePreview.'"}
     }
+    
 }
