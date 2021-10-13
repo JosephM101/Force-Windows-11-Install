@@ -21,6 +21,9 @@ param
     $ShowTimestamps = $true,
 
     [switch]
+    $VerboseMode = $false,
+
+    [switch]
     $SkipReg = $false
 )
 
@@ -156,7 +159,7 @@ process
         #Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
 	    #    Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
         #}
-        FVerbose | Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\WIMMount\Mounted Images" | Get-ItemProperty | Select-Object -ExpandProperty "Mount Path" | ForEach-Object {Dismount-WindowsImage -Path $_ -Discard}
+        Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\WIMMount\Mounted Images" | Get-ItemProperty | Select-Object -ExpandProperty "Mount Path" | ForEach-Object {Dismount-WindowsImage -Path $_ -Discard}
     }
 
     Function TerminateS_Premature {
