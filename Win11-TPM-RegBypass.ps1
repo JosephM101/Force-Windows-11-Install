@@ -328,7 +328,7 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
         $WIMEditions = Get-WindowsImage -ImagePath $InstallWIMFilePath
 
         if($WIMEditions.Count -gt 1) {
-            # install.wim has more than one edition.
+            # install.wim has more than one edition. Give the user the option to select editions to modify.
 	    
 	        # Create an empty list
             #$EditionList = @("0: Modify all editions")
