@@ -45,17 +45,12 @@ process
         return $totalTime
     }
 
-    Function PrintTimespan {
-        params(
-            [string] $Prefix,
-            [Parameter(Mandatory)] $Timespan,
-            [string] $Suffix
-        )
-
+    Function PrintTimespan ($strPrefix, $inputTimespan) {
         if($ShowTimestamps) {
-            $stringBuilder = [System.Text.StringBuilder]::new()
-            [void]$sb.Append($Prefix)
-            [void]$sb.Append($(FormatTimespan $Timespan))
+            $strOutput = ""
+            $strOutput += $strPrefix
+            $strOutput += FormatTimespan $inputTimespan
+            Write-Host $strOutput
         }
     }
 
@@ -324,7 +319,7 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
         # Print time elapsed
         $elapsedTime = $(get-date) - $StartTime
         # Write-Host "Modifying edition index $WIMIndex took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
-        PrintTimespan -Prefix "Modifying edition index $WIMIndex took" -Timespan $elapsedTime
+        PrintTimespan "Modifying edition index $WIMIndex took " $elapsedTime
     }
 
     Function InjectExtraPatches {
@@ -474,7 +469,8 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
 
             # Print time elapsed
             $TotalElapsedTime = $(get-date) - $TotalStartTime
-            Write-Host "Done. Took $(FormatTimespan $TotalElapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+            # Write-Host "Done. Took $(FormatTimespan $TotalElapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+            PrintTimespan "Done. Took " $elapsedTime
         }
         else { # There's only one edition in the WIM file.
             Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $WIMEditions[0].ImageName + " (" + $WIMEditions[0].ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete 0
@@ -563,7 +559,8 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
 
         # Print time elapsed
         $elapsedTime = $(get-date) - $StartTime
-        Write-Host "boot.wim patched. Took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+        # Write-Host "boot.wim patched. Took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+        PrintTimespan "boot.wim patched. Took " $elapsedTime
     }
 
     # Check if we need to modify install.wim, and act accordingly
