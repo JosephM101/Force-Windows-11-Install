@@ -331,7 +331,6 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
             # install.wim has more than one edition. Give the user the option to select editions to modify.
 	    
 	        # Create an empty list
-            #$EditionList = @("0: Modify all editions")
 	        $EditionList = @()
 	    
             Write-Host "The install.wim image contains multiple editions. Select the editions you want to modify (editions not selected will be excluded from the new image)." -ForegroundColor Yellow
@@ -414,7 +413,6 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
             }
 
             # Write-Host $Selection
-
             # $Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
 
             if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If we selected individuals, we're of course not doing them all. Find if a 0 exists, and remove it if the length of the list is larger than 1
