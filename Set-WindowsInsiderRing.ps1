@@ -7,8 +7,6 @@ param
 
 process
 {
-    $ErrorActionPreference = 
-
     $RK1 = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\Applicability"
     $RK2 = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection"
 
