@@ -158,6 +158,11 @@ process
         Exit
     }
 
+    Function FormatTimespan {
+        $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
+        return $totalTime
+    }
+
     # Alert the user if the source image has already been modified by this tool
     Function Alert_ImageModified {
         $inputF = Read-Host -Prompt "Are you sure you want to continue? [y/n]"
@@ -212,7 +217,7 @@ process
         $REG_System = Join-Path $WIMScratchDir -ChildPath "\Windows\System32\config\system"
         $VirtualRegistryPath_SYSTEM = "HKLM\WinPE_SYSTEM"
         $VirtualRegistryPath_Setup = $VirtualRegistryPath_SYSTEM + "\Setup"
-        #$VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
+        $VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
         reg unload $VirtualRegistryPath_SYSTEM | Out-Null # Just in case...
         Start-Sleep 1
         reg load $VirtualRegistryPath_SYSTEM $REG_System | Out-Null
@@ -230,7 +235,6 @@ process
         Start-Sleep 1
         reg unload $VirtualRegistryPath_SYSTEM
         # Start-Sleep 1
-        Write-Host "boot.wim patched" -ForegroundColor Green
     }
 
     Function GeneratePostSetupFileStructure {
@@ -294,9 +298,15 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
     }
 
     Function CopyPostSetupFiles ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
+        $StartTime = $(get-date)
+
         Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
         Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
         Dismount-WindowsImage -Path $MountPath -Save
+
+        # Print time elapsed
+        $elapsedTime = $(get-date) - $StartTime
+        Write-Host "Modifying edition index $WIMIndex took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
     }
 
     Function InjectExtraPatches {
@@ -398,7 +408,7 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
 
             # Write-Host $Selection
 
-            #$Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
+            # $Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
 
             if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If we selected individuals, we're of course not doing them all. Find if a 0 exists, and remove it if the length of the list is larger than 1
                 $Selection = $Selection | Where-Object { $_ -ne 0 }
@@ -408,7 +418,11 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
 
             # Print the selection
             # Write-Host "Selected:"
+
             $Selection | ForEach-Object { $WIMEditions[$PSItem - 1].ImageName }
+
+            # Get current time
+            $TotalStartTime = $(get-date)
 
             if($ModifyAll) {
                 Write-Host "Processing all"
@@ -439,6 +453,10 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
                 }
                 CleanWIM $InstallWIMFilePath $EditionsToProcess
             }
+
+            # Print time elapsed
+            $TotalElapsedTime = $(get-date) - $TotalStartTime
+            Write-Host "Done. Took $(FormatTimespan $TotalElapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
         }
         else { # There's only one edition in the WIM file.
             Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $WIMEditions[0].ImageName + " (" + $WIMEditions[0].ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete 0
@@ -516,13 +534,18 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
 
     if(-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
     {
+        $StartTime = $(get-date)
         # Mount boot.wim for editing
-        FVerbose | Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
-        # Add our registry keys
+        Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
+        # Add the registry keys
         InjectRegistryKeys
         # Unmount WIM; save changes
-        Write-Progress -Activity $ActivityName -Status "Dismounting boot.wim; saving changes..." -PercentComplete 70
-        FVerbose | Dismount-WindowsImage -Path $WIMScratchDir -Save
+        Write-Progress -Activity $ActivityName -Status "Dismounting boot.wim; saving changes..." -PercentComplete 60
+        Dismount-WindowsImage -Path $WIMScratchDir -Save
+
+        # Print time elapsed
+        $elapsedTime = $(get-date) - $StartTime
+        Write-Host "boot.wim patched. Took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
     }
 
     # Check if we need to modify install.wim, and act accordingly
