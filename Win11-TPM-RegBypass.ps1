@@ -51,12 +51,6 @@ process
         }
     }
 
-    Function FVerbose ($func){
-        if($VerboseMode) {
-            Write-Host $func
-        }
-    }
-
     try {
         Import-Module -Name DISM
     }
