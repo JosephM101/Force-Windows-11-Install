@@ -50,7 +50,7 @@ process
             $strOutput = ""
             $strOutput += $strPrefix
             $strOutput += FormatTimespan $inputTimespan
-            Write-Host $strOutput
+            Write-Host $strOutput -ForegroundColor Green
         }
     }
 
