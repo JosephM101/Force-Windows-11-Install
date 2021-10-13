@@ -565,13 +565,20 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
     # In this case, let's copy the registry keys we used to the "sources" directory under the name defined in $sb_bypass_key
     [byte[]]$REGKEY_BYTES = [convert]::FromBase64String($REGISTRY_KEY_FILE_B64)
     [System.IO.File]::WriteAllBytes($sb_bypass_key, $REGKEY_BYTES)
-    Write-Progress -Activity $ActivityName -Status "Creating ISO" -PercentComplete 80
+
+    # Start creating the ISO image using OSCDIMG tool
+    Write-Progress -Activity $ActivityName -Status "Creating ISO" -PercentComplete 95
     $OSCDIMG_ARGS = "-m -o -u2 -udfver102 -bootdata:2#p0,e,b$Win11ScratchDir\boot\etfsboot.com#pEF,e,b$Win11ScratchDir\efi\microsoft\boot\efisys.bin $Win11ScratchDir ""$Destination"""
     Start-Process -FilePath $oscdimgExecutable -WorkingDirectory $ScriptDir -ArgumentList $OSCDIMG_ARGS -Wait -WindowStyle $DefaultWindowStyle
+    
+    # Delete any leftovers
     Write-Progress -Activity $ActivityName -Status "Cleaning up" -PercentComplete 100
     CleanupScratch | Out-Null
+
     Write-Host "Image created." -ForegroundColor Green
     Write-Host $Destination
+
     Pause
+
     Set-Location -Path $OldLocation
 }
