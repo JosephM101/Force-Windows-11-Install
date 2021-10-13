@@ -40,6 +40,25 @@ process
         }
     }
 
+    Function FormatTimespan {
+        $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
+        return $totalTime
+    }
+
+    Function PrintTimespan {
+        params(
+            [string] $Prefix,
+            [Parameter(Mandatory)] $DateTime,
+            [string] $Suffix
+        )
+
+        if($ShowTimestamps) {
+            $stringBuilder = [System.Text.StringBuilder]::new()
+            [void]$sb.Append($Prefix)
+            [void]$sb.Append($(FormatTimespan $DateTime))
+        }
+    }
+
     Function FVerbose ($func){
         if($VerboseMode) {
             Write-Host $func
@@ -159,11 +178,6 @@ process
         CleanupScratch | Out-Null
         Write-Host "Process terminated."
         Exit
-    }
-
-    Function FormatTimespan {
-        $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
-        return $totalTime
     }
 
     # Alert the user if the source image has already been modified by this tool
