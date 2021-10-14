@@ -1,32 +1,45 @@
-[CmdletBinding(DefaultParametersetName='None')] 
+[CmdletBinding(DefaultParametersetName='Main')] 
 param
 (
-    [Parameter(Position=0,Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='Extra2',Mandatory=$false)][switch] 
+    $UndoUpgradeMode = $false,
+
+    [Parameter(ParameterSetName='Extra',Mandatory=$false)][switch] 
+    $UpgradeMode = $false,
+
+    [Parameter(Position=0,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(Position=0,ParameterSetName='Main',Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [ValidateNotNullOrEmpty()] 
     [string]
     $Source,
 
-    [Parameter(Position=1,Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(Position=0,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(Position=1,ParameterSetName='Main',Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [ValidateNotNullOrEmpty()] 
     [string]
     $Destination,
 
+    [Parameter(ParameterSetName="Main")]
     [switch]
     $InjectVMwareTools = $false,
 
+    [Parameter(ParameterSetName="Main")]
     [switch]
     $InjectPostPatch = $false,
 
+    [Parameter(ParameterSetName="Main")]
     [switch]
     $GuiSelectMode = $false,
 
+    [Parameter(ParameterSetName="Main")]
     [switch]
     $HideTimestamps = $false,
 
+    [Parameter(ParameterSetName="Main")]
     [switch]
     $VerboseMode = $false,
 
-    [switch]
-    $UpgradeMode = $false,
-
+    [Parameter(ParameterSetName="Main")]
     [switch]
     $SkipReg = $false
 )
@@ -55,22 +68,6 @@ process
         }
     }
 
-    # Import DISM module
-    $DISMModule_ErrorMessage = "Could not import DISM module. It may not be installed."
-    try {
-        Import-Module -Name DISM -ErrorAction SilentlyContinue -ErrorVariable dismError
-        if ($dismError) {
-            # Something bad happened. Likely the module doesn't exist.
-            Write-Host $DISMModule_ErrorMessage -ForegroundColor Red
-            Exit
-        }
-    }
-    catch {
-        # We're not supposed to be here, either.
-        Write-Host $DISMModule_ErrorMessage -ForegroundColor Red
-        Exit
-    }
-
     $OldLocation = Get-Location
 
     # Base64-encoded files & definitions
@@ -87,36 +84,39 @@ process
     # }
 
     # Declarations
+    
+    if($IsWindows)
+    {
+        $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
+        #$ScriptExec = $script:MyInvocation.MyCommand.Path
 
-    $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
-    #$ScriptExec = $script:MyInvocation.MyCommand.Path
+        $7ZipExecutable = Join-Path -Path $ScriptDir -ChildPath "7z\7z.exe"
+        $oscdimgExecutable = ".\oscdimg\oscdimg"
+        $oscdimgExecutableFull = Join-Path -Path $ScriptDir -ChildPath "oscdimg\oscdimg.exe"
 
-    $7ZipExecutable = Join-Path -Path $ScriptDir -ChildPath "7z\7z.exe"
-    $oscdimgExecutable = ".\oscdimg\oscdimg"
-    $oscdimgExecutableFull = Join-Path -Path $ScriptDir -ChildPath "oscdimg\oscdimg.exe"
+        $ScratchDir = "C:\Scratch"
+        $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
+        $Win11ScratchDir = Join-Path -Path $ScratchDir -ChildPath "W-ISO"
+        $BootWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\boot.wim"
+        $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
+        $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
+        $BootWimImageIndex = 2
 
-    $ScratchDir = "C:\Scratch"
-    $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
-    $Win11ScratchDir = Join-Path -Path $ScratchDir -ChildPath "W-ISO"
-    $BootWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\boot.wim"
-    $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
-    $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
-    $BootWimImageIndex = 2
+        $sb_bypass_keyname = "win11-tpm-sb-bypass"
+        $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
 
-    $sb_bypass_keyname = "win11-tpm-sb-bypass"
-    $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
+        $PostSetupScriptsPath = "Windows\Setup\Scripts"
+        $PostPatchCMDFilename = "SkipTPM.cmd"
+        $PostPatchPS1Filename = "SkipTPM.ps1"
 
-    $PostSetupScriptsPath = "Windows\Setup\Scripts"
-    $PostPatchCMDFilename = "SkipTPM.cmd"
-    $PostPatchPS1Filename = "SkipTPM.ps1"
+        $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
+        $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
 
-    $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
-    $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
-
-    $VMwareTempFolderName = "vmwaretools"
-    $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
-    #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
-    $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
+        $VMwareTempFolderName = "vmwaretools"
+        $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
+        #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
+        $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
+    }
 
     $PostPatch_WMISubscriptionName = 'Skip TPM Check on Dynamic Update'
 
@@ -546,7 +546,7 @@ Set-ItemProperty $K 'Debugger' $C -force
             $null = Set-ItemProperty $K 'Debugger' $C -force
 
             Write-Host " done" -ForegroundColor Green
-            Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your systen for the changes to take effect."
+            Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your system for the changes to take effect."
         }
     }
 
@@ -573,7 +573,7 @@ Set-ItemProperty $K 'Debugger' $C -force
         }
 
         Write-Host " done" -ForegroundColor Green
-        Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your systen for the changes to take effect."
+        Write-Host "Compatibility bypass modifications that were done to your PC have been reverted. You may need to reboot for the changes to take effect."
     }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -583,13 +583,58 @@ Set-ItemProperty $K 'Debugger' $C -force
     Write-Host "Windows 11 Compatibility Check Bypass Tool"
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
 
-    Write-Host "Checking for administrative privleges..."
-    if(!(AdminPrivleges)) {
-        # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
-        Write-Host "This script requires administrative privleges to run." -ForegroundColor Red
+    # Write-Host "Checking for administrative privleges..."
+    # if(!(AdminPrivleges)) {
+    #     # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
+    #     Write-Host "This script requires administrative privleges to run." -ForegroundColor Red
+    #     Exit
+    # }
+
+    # If UpgradeMode is passed, and neither Source nor Destination are specified, then skip everything else.
+
+    if($UndoUpgradeMode) {
+        Undo_PrepareSystemForUpgrade
         Exit
     }
+ƒ
+    if([string]::IsNullOrWhitespace($Source) -or [string]::IsNullOrWhitespace($Destination)) {
+        #if($UpgradeMode)
+        #{
+        #    Write-Host "Source and Destination are null, and UpgradeMode is true."
+        #}
+        #else {
+        #    Write-Host "Source and Destination are null, and UpgradeMode is false."
+        #}
+        PrepareSystemForUpgrade
+        Exit
+    }
+    else {
+        if($UpgradeMode)
+        {
+            # Write-Host "Source and Destination are not null, and UpgradeMode is true."
+        }
+        else {
+            Write-Host "Either Source or Destination was not defined." -ForegroundColor Red
+            Exit
+        }
+    }
 
+    # Import DISM module
+    $DISMModule_ErrorMessage = "Could not import DISM module. It may not be installed."
+    try {
+        Import-Module -Name DISM -ErrorAction SilentlyContinue -ErrorVariable dismError
+        if ($dismError) {
+            # Something bad happened. Likely the module doesn't exist.
+            Write-Host $DISMModule_ErrorMessage -ForegroundColor Red
+            Exit
+        }
+    }
+    catch {
+        # We're not supposed to be here, either.
+        Write-Host $DISMModule_ErrorMessage -ForegroundColor Red
+        Exit
+    }
+    
     Set-Location -Path $ScriptDir # In case we aren't there already. It's a good idea for the PowerShell instance to be in the same directory as the commands we will be referencing.
     
     Write-Host "Getting required information..." -ForegroundColor Yellow
@@ -692,6 +737,8 @@ Set-ItemProperty $K 'Debugger' $C -force
 
     Write-Host "Image created." -ForegroundColor Green
     Write-Host $Destination
+
+    PrepareSystemForUpgrade
 
     Pause
 
