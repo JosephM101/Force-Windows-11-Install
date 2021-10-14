@@ -1,3 +1,12 @@
+# Ascii graphics generated with https://patorjk.com/software/taag/
+
+# __        __  _           _   _     _____   ____    __  __     ____                                      
+# \ \      / / (_)  _ __   / | / |   |_   _| |  _ \  |  \/  |   | __ )   _   _   _ __     __ _   ___   ___ 
+#  \ \ /\ / /  | | | '_ \  | | | |     | |   | |_) | | |\/| |   |  _ \  | | | | | '_ \   / _` | / __| / __|
+#   \ V  V /   | | | | | | | | | |     | |   |  __/  | |  | |   | |_) | | |_| | | |_) | | (_| | \__ \ \__ \
+#    \_/\_/    |_| |_| |_| |_| |_|     |_|   |_|     |_|  |_|   |____/   \__, | | .__/   \__,_| |___/ |___/
+#                                                                        |___/  |_|                        
+
 [CmdletBinding(DefaultParametersetName='Main')] 
 param
 (
@@ -15,32 +24,38 @@ param
     $Source,
 
     # Allow parameter to be passed even if -PrepareUpgrade was passed, but don't make it mandatory.
-    [Parameter(Position=0,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(Position=1,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [Parameter(Position=1,ParameterSetName='Main',Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [ValidateNotNullOrEmpty()] 
     [string]
     $Destination,
 
+    [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
     [switch]
     $InjectVMwareTools = $false,
 
+    [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
     [switch]
     $InjectPostPatch = $false,
 
+    [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
     [switch]
     $GuiSelectMode = $false,
 
+    [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
     [switch]
     $HideTimestamps = $false,
 
+    [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
     [switch]
     $VerboseMode = $false,
 
+    [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
     [switch]
     $SkipReg = $false
@@ -48,6 +63,9 @@ param
 
 process
 {
+    # The first thing we should do is check if this script is running on anything but Windows, and terminate with a message if that's the case.
+    # if(-not $IsWindows) { Write-Host "This script will only work on Windows systems." -ForegroundColor Red ; Exit }
+
     Function MakeDirectory ($path) {
         if($VerboseMode) {
             mkdir $path
@@ -87,6 +105,9 @@ process
 
     # Declarations
     
+    #$Is64BitSystem = [Environment]::Is64BitOperatingSystem
+    $Is64BitSystem = $false
+
     if($IsWindows)
     {
         $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
@@ -118,6 +139,8 @@ process
         $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
         #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
         $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
+
+        $32Bit_System_Error_Message = "ERROR: This device does not support Windows 11, as it is a 32-bit device. Windows 11 will only run on 64-bit devices."
     }
 
     $PostPatch_WMISubscriptionName = 'Skip TPM Check on Dynamic Update'
@@ -462,8 +485,7 @@ Set-ItemProperty $K 'Debugger' $C -force
                 }
                 CleanWIM $InstallWIMFilePath $SelectedIndex
             }
-            else
-            {
+            else {
                 $EditionsToProcess = foreach ($edition in $WIMEditions) {
                     if ($Selection -contains $edition.ImageIndex) {
                         $edition
@@ -472,8 +494,7 @@ Set-ItemProperty $K 'Debugger' $C -force
                 $EditionsToProcess
                 Write-Host ""
                 $CurrentIndex = 0
-                foreach ($edition in $EditionsToProcess)
-                {
+                foreach ($edition in $EditionsToProcess) {
                     $CurrentIndex++
                     $PercentageComplete = GetPercentageFromRange ($CurrentIndex - 1) 0 $EditionsToProcess.Count
                     Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $edition.ImageName + " (" + $CurrentIndex.ToString() + "/" + $EditionsToProcess.Count.ToString() + ")") -PercentComplete $PercentageComplete
@@ -537,51 +558,78 @@ Set-ItemProperty $K 'Debugger' $C -force
 
     Function PrepareSystemForUpgrade {
         if ($PrepareUpgrade) {
-            Write-Host "Preparing system for upgrade..." -NoNewline
+            if($Is64BitSystem) {
+                Write-Host "Preparing system for upgrade..." -NoNewline
 
-            $N = $PostPatch_WMISubscriptionName
-            $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
-            $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
-            $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
-            $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-            $null = New-Item $K -force -ea 0
-            $null = Set-ItemProperty $K 'Debugger' $C -force
+                $N = $PostPatch_WMISubscriptionName
+                $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
+                $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
+                $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
+                $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+                $null = New-Item $K -force -ea 0
+                $null = Set-ItemProperty $K 'Debugger' $C -force
 
-            Write-Host " done" -ForegroundColor Green
-            Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your system for the changes to take effect."
+                Write-Host " done" -ForegroundColor Green
+                Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your system for the changes to take effect."
+            } else {
+                Write-Host $32Bit_System_Error_Message -ForegroundColor Red
+            }
         }
     }
 
     Function Undo_PrepareSystemForUpgrade {
-        Write-Host "Operation: Undo changes made by -PrepareUpgrade" -NoNewline
-        Write-Host "Undoing system changes..." -NoNewline
+        if($Is64BitSystem) {
+            Write-Host "Operation: Undo changes made by -PrepareUpgrade" -NoNewline
+            Write-Host "Undoing system changes..." -NoNewline
 
-        $N = $PostPatch_WMISubscriptionName
-        $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 0 -type dword -force -ea 0
-        $B = gwmi -Class __FilterToConsumerBinding -Namespace 'root\subscription' -Filter "Filter = ""__eventfilter.name='$N'""" -ea 0
-        $C = gwmi -Class CommandLineEventConsumer -Namespace 'root\subscription' -Filter "Name='$N'" -ea 0
-        $F = gwmi -Class __EventFilter -NameSpace 'root\subscription' -Filter "Name='$N'" -ea 0
-        if ($B) { 
-            $B | rwmi 
-        }
-        if ($C) { 
-            $C | rwmi 
-        } 
-        if ($F) { 
-            $F | rwmi 
-        }
-        $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-        if (test-path $K) {
-            Remove-Item $K -force -ea 0
-        }
+            $N = $PostPatch_WMISubscriptionName
+            $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 0 -type dword -force -ea 0
+            $B = gwmi -Class __FilterToConsumerBinding -Namespace 'root\subscription' -Filter "Filter = ""__eventfilter.name='$N'""" -ea 0
+            $C = gwmi -Class CommandLineEventConsumer -Namespace 'root\subscription' -Filter "Name='$N'" -ea 0
+            $F = gwmi -Class __EventFilter -NameSpace 'root\subscription' -Filter "Name='$N'" -ea 0
+            if ($B) { 
+                $B | rwmi 
+            }
+            if ($C) { 
+                $C | rwmi 
+            } 
+            if ($F) { 
+                $F | rwmi 
+            }
+            $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+            if (test-path $K) {
+                Remove-Item $K -force -ea 0
+            }
 
-        Write-Host " done" -ForegroundColor Green
-        Write-Host "Modifications that were made to your PC by the -PrepareUpgrade flag have been reverted. You may need to reboot for the changes to take effect."
+            Write-Host " done" -ForegroundColor Green
+            Write-Host "Modifications that were made to your PC by the -PrepareUpgrade flag have been reverted. You may need to reboot for the changes to take effect."
+        } else {
+            Write-Host $32Bit_System_Error_Message -ForegroundColor Red
+            Write-Host "Nothing to undo."
+        }
     }
 
-#-----------------------------------------------------------------------------------------------------------------------
-#------------------------------------------------Everything begins here-------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#
+#  ______                    _   _     _                ____             _              _    _               
+# |  ____|                  | | | |   (_)              |  _ \           (_)            | |  | |              
+# | |____   _____ _ __ _   _| |_| |__  _ _ __   __ _   | |_) | ___  __ _ _ _ __  ___   | |__| | ___ _ __ ___ 
+# |  __\ \ / / _ \ '__| | | | __| '_ \| | '_ \ / _` |  |  _ < / _ \/ _` | | '_ \/ __|  |  __  |/ _ \ '__/ _ \
+# | |___\ V /  __/ |  | |_| | |_| | | | | | | | (_| |  | |_) |  __/ (_| | | | | \__ \  | |  | |  __/ | |  __/
+# |______\_/ \___|_|   \__, |\__|_| |_|_|_| |_|\__, |  |____/ \___|\__, |_|_| |_|___/  |_|  |_|\___|_|  \___|
+#                       __/ |                   __/ |               __/ |                                    
+#                      |___/                   |___/               |___/                                     
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------
 
     Write-Host "Windows 11 Compatibility Check Bypass Tool"
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
@@ -590,7 +638,7 @@ Set-ItemProperty $K 'Debugger' $C -force
     if(!(HasAdminPrivileges)) {
         # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
         Write-Host "This script requires administrative privileges to run." -ForegroundColor Red
-        Exit
+        #Exit
     }
 
     if($UndoPrepareUpgrade) {
