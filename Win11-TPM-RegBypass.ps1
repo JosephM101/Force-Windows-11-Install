@@ -54,11 +54,20 @@ process
         }
     }
 
+    # Import DISM module
+    $DISMModule_ErrorMessage = "Could not import DISM module. It may not be installed."
     try {
-        Import-Module -Name DISM
+        Import-Module -Name DISM -ErrorAction SilentlyContinue -ErrorVariable dismError
+        if ($dismError) {
+            # Something bad happened. Likely the module doesn't exist.
+            Write-Host $DISMModule_ErrorMessage -ForegroundColor Red
+            Exit
+        }
     }
     catch {
-        Write-Host "Couldn't import DISM module. It may not be installed."
+        # We're not supposed to be here, either.
+        Write-Host $DISMModule_ErrorMessage -ForegroundColor Red
+        Exit
     }
 
     $OldLocation = Get-Location
