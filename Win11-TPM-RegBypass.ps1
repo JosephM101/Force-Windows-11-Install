@@ -64,11 +64,10 @@ process
     $OldLocation = Get-Location
 
     # Base64-encoded files & definitions
-        #!!!DO NOT MODIFY ANY OF THESE LINES!!!
+        #!!!DO NOT MODIFY THESE LINES!!!
         # The encoded version (Base64) of the registry keys to be applied to the boot.wim file to bypass TPM and Secure Boot checks
     $REGISTRY_KEY_FILE_B64 = "//5XAGkAbgBkAG8AdwBzACAAUgBlAGcAaQBzAHQAcgB5ACAARQBkAGkAdABvAHIAIABWAGUAcgBzAGkAbwBuACAANQAuADAAMAANAAoADQAKAFsASABLAEUAWQBfAEwATwBDAEEATABfAE0AQQBDAEgASQBOAEUAXABTAFkAUwBUAEUATQBcAFMAZQB0AHUAcABcAEwAYQBiAEMAbwBuAGYAaQBnAF0ADQAKACIAQgB5AHAAYQBzAHMAVABQAE0AQwBoAGUAYwBrACIAPQBkAHcAbwByAGQAOgAwADAAMAAwADAAMAAwADEADQAKACIAQgB5AHAAYQBzAHMAUwBlAGMAdQByAGUAQgBvAG8AdABDAGgAZQBjAGsAIgA9AGQAdwBvAHIAZAA6ADAAMAAwADAAMAAwADAAMQANAAoADQAKAA=="
-    $POST_PATCH_CMD_FILE_B64 = "QChzZXQgIjA9JX5mMCJeKSMpICYgcG93ZXJzaGVsbCAtbm9wIC1jIGlleChbaW8uZmlsZV06OlJlYWRBbGxUZXh0KCRlbnY6MCkpICYgZXhpdC9iDQojOjogZG91YmxlLWNsaWNrIHRvIHJ1biBvciBqdXN0IGNvcHktcGFzdGUgaW50byBwb3dlcnNoZWxsIC0gaXQncyBhIHN0YW5kYWxvbmUgaHlicmlkIHNjcmlwdA0KIzo6IHYyIHVzaW5nIGlmZW8gaW5zdGVhZCBvZiB3bWkgLSBpbmNyZWFzZWQgY29tcGF0aWJpbGl0eSBhdCB0aGUgY29zdCBvZiBzaG93aW5nIGEgY21kIGJyaWVmbHkgb24gZGlza21nbXQgDQoNCiRfUGFzdGVfaW5fUG93ZXJzaGVsbCA9IHsNCiAgJE4gPSAnU2tpcCBUUE0gQ2hlY2sgb24gRHluYW1pYyBVcGRhdGUnDQogICRCID0gZ3dtaSAtQ2xhc3MgX19GaWx0ZXJUb0NvbnN1bWVyQmluZGluZyAtTmFtZXNwYWNlICdyb290XHN1YnNjcmlwdGlvbicgLUZpbHRlciAiRmlsdGVyID0gIiJfX2V2ZW50ZmlsdGVyLm5hbWU9JyROJyIiIiAtZWEgMA0KICAkQyA9IGd3bWkgLUNsYXNzIENvbW1hbmRMaW5lRXZlbnRDb25zdW1lciAtTmFtZXNwYWNlICdyb290XHN1YnNjcmlwdGlvbicgLUZpbHRlciAiTmFtZT0nJE4nIiAtZWEgMA0KICAkRiA9IGd3bWkgLUNsYXNzIF9fRXZlbnRGaWx0ZXIgLU5hbWVTcGFjZSAncm9vdFxzdWJzY3JpcHRpb24nIC1GaWx0ZXIgIk5hbWU9JyROJyIgLWVhIDANCiAgaWYgKCRCKSB7ICRCIHwgcndtaSB9IDsgaWYgKCRDKSB7ICRDIHwgcndtaSB9IDsgaWYgKCRGKSB7ICRGIHwgcndtaSB9DQogICRDID0gImNtZCAvcSAkTiAoYykgQXZlWW8sIDIwMjEgL2QveC9yPm51bCAoZXJhc2UgL2Yvcy9xICVzeXN0ZW1kcml2ZSVcYCR3aW5kb3dzLn5idFxhcHByYWlzZXJyZXMuZGxsIg0KICAkQys9ICcmbWQgMTEmY2QgMTEmcmVuIHZkLmV4ZSB2ZHNsZHIuZXhlJnJvYm9jb3B5ICIuLi8iICIuLyIgInZkc2xkci5leGUiJnJlbiB2ZHNsZHIuZXhlIHZkLmV4ZSZzdGFydCB2ZCAtRW1iZWRkaW5nKSZyZW07Jw0KICAkSyA9ICdIS0xNOlxTT0ZUV0FSRVxNaWNyb3NvZnRcV2luZG93cyBOVFxDdXJyZW50VmVyc2lvblxJbWFnZSBGaWxlIEV4ZWN1dGlvbiBPcHRpb25zXHZkc2xkci5leGUnDQogIGlmICh0ZXN0LXBhdGggJEspIHtyaSAkSyAtZm9yY2UgLWVhIDA7IHdyaXRlLWhvc3QgLWZvcmUgMHhmIC1iYWNrIDB4ZCAiYG4gJE4gW1JFTU9WRURdIHJ1biBhZ2FpbiB0byBpbnN0YWxsIn0NCiAgZWxzZSB7JDA9bmkgJEs7IHNwICRLIERlYnVnZ2VyICRDIC1mb3JjZTsgd3JpdGUtaG9zdCAtZm9yZSAweGYgLWJhY2sgMHgyICJgbiAkTiBbSU5TVEFMTEVEXSBydW4gYWdhaW4gdG8gcmVtb3ZlIn0NCiAgJDAgPSBzcCBIS0xNOlxTWVNURU1cU2V0dXBcTW9TZXR1cCAnQWxsb3dVcGdyYWRlc1dpdGhVbnN1cHBvcnRlZFRQTU9yQ1BVJyAxIC10eXBlIGR3b3JkIC1mb3JjZSAtZWEgMA0KfSA7IHN0YXJ0IC12ZXJiIHJ1bmFzIHBvd2Vyc2hlbGwgLWFyZ3MgIi1ub3AgLWMgJiB7YG5gbiQoJF9QYXN0ZV9pbl9Qb3dlcnNoZWxsLXJlcGxhY2UnIicsJ1wiJyl9Ig0KJF9QcmVzc19FbnRlcg0KIywj"
-        #!!!DO NOT MODIFY!!!
+        #!!!DO NOT MODIFY THESE LINES!!!
     
     $DefaultWindowStyle = "Normal"
     $ActivityName = "Win11-TPM-Bypass"
@@ -77,13 +76,13 @@ process
     #     $DefaultWindowStyle = "Normal"
     # }
 
+    # Declarations
+
     $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
     #$ScriptExec = $script:MyInvocation.MyCommand.Path
 
     $7ZipExecutable = Join-Path -Path $ScriptDir -ChildPath "7z\7z.exe"
     $oscdimgExecutable = ".\oscdimg\oscdimg"
-    #$DISMExecutable = Join-Path -Path $ScriptDir -ChildPath "DISM\dism.exe"
-    #$DISMExecutableDir = Join-Path -Path $ScriptDir -ChildPath "DISM"
 
     $ScratchDir = "C:\Scratch"
     $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
@@ -92,7 +91,6 @@ process
     $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
     $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
     $BootWimImageIndex = 2
-    #$RegkeyPath = Join-Path -Path $ScratchDir -ChildPath "regkey.reg"
 
     $sb_bypass_keyname = "win11-tpm-sb-bypass"
     $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
@@ -108,6 +106,8 @@ process
     $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
     #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
     $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
+
+    $PostPatch_WMISubscriptionName = 'Skip TPM Check on Dynamic Update'
 
     Function GetPercentageFromRange ($value, $minV, $maxV) {
         $percentage = ($value - $minV) / ($maxV - $minV)
@@ -303,7 +303,7 @@ $0 = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupported
 $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
 $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
 $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-$0=New-Item $K -force -ea 0
+$0 = New-Item $K -force -ea 0
 Set-ItemProperty $K 'Debugger' $C -force
 '@
 
@@ -506,6 +506,49 @@ Set-ItemProperty $K 'Debugger' $C -force
             Export-WindowsImage -SourceImagePath $OLD -SourceIndex $edition.ImageIndex -DestinationImagePath $WIMFilePath -CompressionType Max
         }
         Remove-Item $OLD -Force
+    }
+
+    Function PrepareSystemForUpgrade {
+        if ($UpgradeMode) {
+            Write-Host "Preparing system for upgrade..." -NoNewline
+
+            $N = $PostPatch_WMISubscriptionName
+            $0 = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
+            $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
+            $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
+            $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+            $0 = New-Item $K -force -ea 0
+            $0 = Set-ItemProperty $K 'Debugger' $C -force
+
+            Write-Host " done" -ForegroundColor Green
+            Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your systen for the changes to take effect."
+        }
+    }
+
+    Function Undo_PrepareSystemForUpgrade {
+        Write-Host "Undoing system changes..." -NoNewline
+
+        $N = $PostPatch_WMISubscriptionName
+        $0 = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 0 -type dword -force -ea 0
+        $B = gwmi -Class __FilterToConsumerBinding -Namespace 'root\subscription' -Filter "Filter = ""__eventfilter.name='$N'""" -ea 0
+        $C = gwmi -Class CommandLineEventConsumer -Namespace 'root\subscription' -Filter "Name='$N'" -ea 0
+        $F = gwmi -Class __EventFilter -NameSpace 'root\subscription' -Filter "Name='$N'" -ea 0
+        if ($B) { 
+            $B | rwmi 
+        }
+        if ($C) { 
+            $C | rwmi 
+        } 
+        if ($F) { 
+            $F | rwmi 
+        }
+        $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+        if (test-path $K) {
+            Remove-Item $K -force -ea 0
+        }
+
+        Write-Host " done" -ForegroundColor Green
+        Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your systen for the changes to take effect."
     }
 
 #-----------------------------------------------------------------------------------------------------------------------
