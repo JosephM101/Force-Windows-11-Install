@@ -5,6 +5,8 @@ This tool creates a modified Windows 11 installer ISO using an existing one, con
 
 **Looking for Windows 11 ISOs? Head over to [UUP Dump](https://uupdump.net/fetchupd.php?arch=amd64&ring=wif&build=latest) to download the latest Dev build of Windows 11, and create a bootable ISO. Need help? [You can start here.](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/UUPDump-Tutorial.md)**
 
+***Please note that this tool does not allow Windows 11 to be installed on 32-bit (x86) platforms. Windows 11 is a 64-bit-only OS, and therefore will not work at all on older architectures such as 32-bit (x86).***
+
 **I am also developing a command-line interface tool for UUP Dump, so that you can download the latest update package for a given channel, and generate an installable ISO for use with this script. Using just a single command. Requires Python 3 and the `requests` module. You can check out the project [here](https://github.com/JosephM101/uupdump_cli#one-line-run).**
 
 ------
