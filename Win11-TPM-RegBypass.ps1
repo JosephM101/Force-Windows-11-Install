@@ -1,10 +1,11 @@
+[CmdletBinding(DefaultParametersetName='None')] 
 param
 (
-    [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(Position=0,Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [string]
     $Source,
 
-    [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(Position=1,Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [string]
     $Destination,
 
