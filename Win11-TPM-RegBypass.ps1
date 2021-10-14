@@ -254,7 +254,8 @@ process
         if($InjectVMwareTools) { 
             # Add commands to SetupComplete.cmd file to make the VMware Tools installer run on first boot
 
-            $VMwareInstall = @"
+            $VMwareInstall = 
+@"
 C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
 rmdir C:\$VMwareTempFolderName /s /q
 "@
