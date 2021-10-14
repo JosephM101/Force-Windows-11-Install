@@ -252,19 +252,28 @@ process
         # Generate SetupComplete.cmd file
         $SetupCompleteCMD = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath "SetupComplete.cmd"
 
-        # Define the contents of the SetupComplete.cmd file
-        if($InjectVMwareTools) { $VMwareInstall =
-@"
+        if($InjectVMwareTools) { 
+            # Add commands to SetupComplete.cmd file to make the VMware Tools installer run on first boot
+
+            $VMwareInstall = @"
 C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
 rmdir C:\$VMwareTempFolderName /s /q
-"@ }
+"@
 
-# cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
+            # Copy the contents of the installer to the root of the structure; folder name defined by $VMwareTempFolderName
+            
+            # Make our temporary directory for VMware Tools
+            MakeDirectory $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
+            # Extract the VMware Tools ISO to that directory
+            & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
+        }
         if($InjectPostPatch) { $PatchInject =
 @"
+:: cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
 powershell.exe -executionpolicy Bypass -file "C:\$PostSetupScriptsPath\$PostPatchPS1Filename"
 "@ }
 
+        # Finally, combine all of the SetupComplete commands into a single string to be written to the file.
         $SetupCompleteCMDContents = 
 @"
 $PatchInject
@@ -277,13 +286,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
         $stream.Write(($SetupCompleteCMDContents -join "`r`n"))
         $stream.close()
 
-        # If VMware Tools injection was selected, copy the contents of the installer to the root of the structure; folder name defined by $VMwareTempFolderName
-        if($InjectVMwareTools) {
-            # Make our temporary directory for VMware Tools
-            MakeDirectory $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
-            # Extract the VMware Tools ISO to that directory
-            & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
-        }
         if($InjectPostPatch) {
             $PS1_Contents = @'
 $N = 'Skip TPM Check on Dynamic Update'
