@@ -44,7 +44,13 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 ### Modifications
 - `-InjectVMwareTools` - Injects the VMware tools installer into the install.wim image to run when the system boots for the first time. VMware needs to be installed, and the VMware Tools ISO needs to exist in its application folder. The process is modifying install.wim, and may take significantly longer.
 - `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
-- `-PrepareUpgrade` - (EXPERIMENTAL) Modify the current system to bypass compatibility checks to allow in-place upgrades using the modified ISO. Can be called on its own (no other parameters), or it can be passed along with the `-Source` and `-Destination` parameters to perform the mods after generating the ISO.
+- `-PrepareUpgrade` - (EXPERIMENTAL) Modify the current system to bypass compatibility checks to allow in-place upgrades using the modified ISO. Can be called on its own (no other parameters), or otherwise run after generating the ISO.
+  
+  
+    Example: `.\Win11-TPM-RegBypass.ps1 -PrepareUpgrade` will only perform the modifications to the system.
+
+    `.\Win11-TPM-RegBypass.ps1 -Source [source] -Destination [destination] <Other parameters> -PrepareUpgrade` will perform modifications after the ISO is generated.
+  
 - `-UndoPrepareUpgrade` - (EXPERIMENTAL) Undo the changes made by `-PrepareUpgrade`, if there are any. Can only be called by itself.
 
 ### Other switches
