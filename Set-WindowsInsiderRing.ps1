@@ -10,6 +10,43 @@ process
     $RK1 = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\Applicability"
     $RK2 = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection"
 
+    Function ValidateStringInput {
+        Param (
+            [Parameter(Mandatory = $true)]
+            [ref]$ByRef,
+            [Parameter(Mandatory = $true)]
+            [ValidateNotNullorEmpty()]
+            [string]$ParamName,
+            [Parameter(Mandatory=$false)]
+            [string]$ParamValue = '',
+            [Parameter(Mandatory=$true)]
+            [ValidateNotNullorEmpty()]
+            [string[]]$ValidValues
+        )
+        while (1) {
+            If ($ParamValue -And ($ValidValues -contains $ParamValue)) {
+                break
+            } Else {
+                If ($ParamValue) {
+                    #$Message = "Unable to match the identifier $ParamValue to a valid enumerator name. Specify one of"
+                    $Message = "$ParamValue is not a valid option. Specify one of"
+                    Foreach ($Value in $ValidValues) {
+                        $Message += " $Value,"
+                    }
+                    $Message = $Message.TrimEnd(",")
+                    $Message += "."
+                    Write-Host $Message
+                } Else {
+                    Write-Host "Supply values for the following parameters:"
+                }
+                $ParamValue = Read-Host "$ParamName"
+            }
+        }
+        $ByRef.Value = $ParamValue
+    }
+    
+    ValidateStringInput -ByRef ([ref]$Ring) -ParamName 'Ring' -ParamValue $Ring -ValidValues @('Dev','Beta','ReleasePreview')
+
     function SetChannel ($channel) {
         try {
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PreviewBuilds" -Name "AllowBuildPreview" -Value 1 -Force
