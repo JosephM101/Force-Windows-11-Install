@@ -576,7 +576,7 @@ Set-ItemProperty $K 'Debugger' $C -force
         }
 
         Write-Host " done" -ForegroundColor Green
-        Write-Host "Compatibility bypass modifications that were done to your PC have been reverted. You may need to reboot for the changes to take effect."
+        Write-Host "Modifications that were made to your PC by the -PrepareUpgrade flag have been reverted. You may need to reboot for the changes to take effect."
     }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -608,7 +608,7 @@ Set-ItemProperty $K 'Debugger' $C -force
         #else {
         #    Write-Host "Source and Destination are null, and PrepareUpgrade is false."
         #}
-        Write-Host "Upgrade mode"
+        Write-Host "Prepare system for upgrade"
         PrepareSystemForUpgrade
         Exit
     }
