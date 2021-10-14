@@ -92,6 +92,7 @@ process
 
     $7ZipExecutable = Join-Path -Path $ScriptDir -ChildPath "7z\7z.exe"
     $oscdimgExecutable = ".\oscdimg\oscdimg"
+    $oscdimgExecutableFull = Join-Path -Path $ScriptDir -ChildPath "oscdimg\oscdimg.exe"
 
     $ScratchDir = "C:\Scratch"
     $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
@@ -296,15 +297,15 @@ rmdir C:\Windows\Setup\Scripts /s /q
 
         if($InjectPostPatch) {
             # Old
-            $PS1_Contents_v1 = @'
-$N = 'Skip TPM Check on Dynamic Update'
-$K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-$C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
-$C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
-$0 = New-Item $K
-Set-ItemProperty $K Debugger $C -force
-$0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
-'@
+#             $PS1_Contents_v1 = @'
+# $N = 'Skip TPM Check on Dynamic Update'
+# $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+# $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
+# $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
+# $0 = New-Item $K
+# Set-ItemProperty $K Debugger $C -force
+# $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
+# '@
 
             $PS1_Contents_v2 = @'
 $N = 'Skip TPM Check on Dynamic Update'
@@ -517,6 +518,20 @@ Set-ItemProperty $K 'Debugger' $C -force
         Remove-Item $OLD -Force
     }
 
+    Function CheckExists ($FilePath, $ItemName, $Description) {
+        Write-Host "Checking if $ItemName exists..." -ForegroundColor Yellow -NoNewline
+        $file_exists = Test-Path $FilePath
+        if(!$file_exists)
+        {
+            Write-Host " no" -ForegroundColor Red
+            Write-Host "$($ItemName): $Description does not exist" -ForegroundColor Red
+            Exit
+        }
+        else {
+            Write-Host " yes" -ForegroundColor Green
+        }
+    }
+
     Function PrepareSystemForUpgrade {
         if ($UpgradeMode) {
             Write-Host "Preparing system for upgrade..." -NoNewline
@@ -564,9 +579,9 @@ Set-ItemProperty $K 'Debugger' $C -force
 #------------------------------------------------Everything begins here-------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-    # Start main script
     Write-Host "Windows 11 Compatibility Check Bypass Tool"
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
+
     Write-Host "Checking for administrative privleges..."
     if(!(AdminPrivleges)) {
         # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
@@ -574,18 +589,51 @@ Set-ItemProperty $K 'Debugger' $C -force
         Exit
     }
 
-    Set-Location -Path $ScriptDir # In case we aren't positioned here already. It's a good idea for the PowerShell instance to be in the same directory as the commands we will be referencing.
-    Write-Host "Getting information..." -ForegroundColor Yellow
-    Write-Host "Checking if image exists..." -ForegroundColor Yellow
-    $image_exists = Test-Path $Source
-    if(!$image_exists)
-    {
-        Write-Error -Message "Source: File does not exist" -Category ObjectNotFound
-        Exit
-    }
-    else {
-        Write-Host "Windows 11 image exists" -ForegroundColor Green
-    }
+    Set-Location -Path $ScriptDir # In case we aren't there already. It's a good idea for the PowerShell instance to be in the same directory as the commands we will be referencing.
+    
+    Write-Host "Getting required information..." -ForegroundColor Yellow
+
+    # Write-Host "Checking if 7z exists..." -ForegroundColor Yellow -NoNewline
+    # $7z_exists = Test-Path $7ZipExecutable
+    # if(!$image_exists)
+    # {
+    #     Write-Host " no" -ForegroundColor Red
+    #     Write-Error -Message "7z: Tool executable does not exist" -Category ObjectNotFound
+    #     Exit
+    # }
+    # else {
+    #     Write-Host " yes" -ForegroundColor Green
+    # }
+    # 
+    # Write-Host "Checking if oscdimg exists..." -ForegroundColor Yellow -NoNewline
+    # $image_exists = Test-Path $oscdimgExecutableFull
+    # if(!$image_exists)
+    # {
+    #     Write-Host " no" -ForegroundColor Red
+    #     Write-Error -Message "OSCDIMG: Tool executable does not exist" -Category ObjectNotFound
+    #     Exit
+    # }
+    # else {
+    #     Write-Host " yes" -ForegroundColor Green
+    # }
+    # 
+    # Write-Host "Checking if ISO image exists..." -ForegroundColor Yellow -NoNewline
+    # $image_exists = Test-Path $Source
+    # if(!$image_exists)
+    # {
+    #     Write-Host " no" -ForegroundColor Red
+    #     Write-Error -Message "Source: File does not exist" -Category ObjectNotFound
+    #     Exit
+    # }
+    # else {
+    #     Write-Host " yes" -ForegroundColor Green
+    # }
+
+    # Check to see if we have (and can access) everything we need
+    CheckExists $7ZipExecutable "7z" "Tool executable"
+    CheckExists $oscdimgExecutableFull "oscdimg" "Tool executable"
+    CheckExists $Source "ISO image" "File"
+
     CleanupScratch # Just in case anything was left over from any previous runs as a result of an error
     MakeDirectory -Path $ScratchDir
 
@@ -593,7 +641,7 @@ Set-ItemProperty $K 'Debugger' $C -force
     & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
     if(Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
     {
-        Write-Host "Looks like you've already used this tool on this ISO. Continuing to use it is not recommended as it may have undesirable results."
+        Write-Host "Looks like this ISO has already been modified by this tool. Continuing with it is not recommended as it may have undesirable results."
         Alert_ImageModified
     }    
     Write-Progress -Activity "$ActivityName" -Status "Extracting image" -PercentComplete 0
