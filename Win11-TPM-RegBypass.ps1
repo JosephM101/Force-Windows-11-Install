@@ -18,7 +18,7 @@ param
     $GuiSelectMode = $false,
 
     [switch]
-    $ShowTimestamps = $true,
+    $HideTimestamps = $false,
 
     [switch]
     $VerboseMode = $false,
@@ -46,7 +46,7 @@ process
     }
 
     Function PrintTimespan ($strPrefix, $inputTimespan) {
-        if($ShowTimestamps) {
+        if($HideTimestamps -eq $false) {
             $strOutput = ""
             $strOutput += $strPrefix
             $strOutput += FormatTimespan $inputTimespan
