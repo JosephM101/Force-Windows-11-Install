@@ -47,9 +47,9 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 - `-PrepareUpgrade` - (EXPERIMENTAL) Modify the current system to bypass compatibility checks to allow in-place upgrades using the modified ISO. Can be called on its own (no other parameters), or otherwise run after generating the ISO.
   
   
-    Example: `.\Win11-TPM-RegBypass.ps1 -PrepareUpgrade` will only perform the modifications to the system.
+    ***Example: `.\Win11-TPM-RegBypass.ps1 -PrepareUpgrade` will only perform the modifications to the system.***
 
-    `.\Win11-TPM-RegBypass.ps1 -Source [source] -Destination [destination] <Other parameters> -PrepareUpgrade` will perform modifications after the ISO is generated.
+    ***`.\Win11-TPM-RegBypass.ps1 -Source [source] -Destination [destination] <Other parameters> -PrepareUpgrade` will perform modifications after the ISO is generated.***
   
 - `-UndoPrepareUpgrade` - (EXPERIMENTAL) Undo the changes made by `-PrepareUpgrade`, if there are any. Can only be called by itself.
 
