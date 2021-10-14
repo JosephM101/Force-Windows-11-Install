@@ -2,19 +2,19 @@
 param
 (
     [Parameter(ParameterSetName='Extra2',Mandatory=$false)][switch] 
-    $UndoUpgradeMode = $false,
+    $UndoPrepareUpgrade = $false,
 
     [Parameter(ParameterSetName='Extra',Mandatory=$false)][switch] 
-    $UpgradeMode = $false,
+    $PrepareUpgrade = $false,
 
-    # Allow parameter to be passed even if -UpgradeMode was passed, but don't make it mandatory.
+    # Allow parameter to be passed even if -PrepareUpgrade was passed, but don't make it mandatory.
     [Parameter(Position=0,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [Parameter(Position=0,ParameterSetName='Main',Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [ValidateNotNullOrEmpty()] 
     [string]
     $Source,
 
-    # Allow parameter to be passed even if -UpgradeMode was passed, but don't make it mandatory.
+    # Allow parameter to be passed even if -PrepareUpgrade was passed, but don't make it mandatory.
     [Parameter(Position=0,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [Parameter(Position=1,ParameterSetName='Main',Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [ValidateNotNullOrEmpty()] 
@@ -536,7 +536,7 @@ Set-ItemProperty $K 'Debugger' $C -force
     }
 
     Function PrepareSystemForUpgrade {
-        if ($UpgradeMode) {
+        if ($PrepareUpgrade) {
             Write-Host "Preparing system for upgrade..." -NoNewline
 
             $N = $PostPatch_WMISubscriptionName
@@ -553,6 +553,7 @@ Set-ItemProperty $K 'Debugger' $C -force
     }
 
     Function Undo_PrepareSystemForUpgrade {
+        Write-Host "Operation: Undo changes made by -PrepareUpgrade" -NoNewline
         Write-Host "Undoing system changes..." -NoNewline
 
         $N = $PostPatch_WMISubscriptionName
@@ -592,28 +593,29 @@ Set-ItemProperty $K 'Debugger' $C -force
         Exit
     }
 
-    if($UndoUpgradeMode) {
+    if($UndoPrepareUpgrade) {
+        # Undo any changes made by -PrepareUpgrade
         Undo_PrepareSystemForUpgrade
         Exit
     }
 
-    # Check if Source and Destination are null or contain whitespace. If true, it's likely that -UpgradeMode was passed.
+    # Check if Source and Destination are null or contain whitespace. If true, it's likely that -PrepareUpgrade was passed.
     if([string]::IsNullOrWhitespace($Source) -or [string]::IsNullOrWhitespace($Destination)) {
-        #if($UpgradeMode)
+        #if($PrepareUpgrade)
         #{
-        #    Write-Host "Source and Destination are null, and UpgradeMode is true."
+        #    Write-Host "Source and Destination are null, and PrepareUpgrade is true."
         #}
         #else {
-        #    Write-Host "Source and Destination are null, and UpgradeMode is false."
+        #    Write-Host "Source and Destination are null, and PrepareUpgrade is false."
         #}
         Write-Host "Upgrade mode"
         PrepareSystemForUpgrade
         Exit
     }
     else {
-        if($UpgradeMode)
+        if($PrepareUpgrade)
         {
-            # Write-Host "Source and Destination are not null, and UpgradeMode is true."
+            # Write-Host "Source and Destination are not null, and PrepareUpgrade is true."
         }
         else {
             Write-Host "Source or Destination parameters are null, empty, or contain whitespace." -ForegroundColor Red
