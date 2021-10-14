@@ -18,6 +18,9 @@ param
     $GuiSelectMode = $false,
 
     [switch]
+    $HideTimestamps = $false,
+
+    [switch]
     $VerboseMode = $false,
 
     [switch]
@@ -37,9 +40,17 @@ process
         }
     }
 
-    Function FVerbose ($func){
-        if($VerboseMode) {
-            Write-Host $func
+    Function FormatTimespan {
+        $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
+        return $totalTime
+    }
+
+    Function PrintTimespan ($strPrefix, $inputTimespan) {
+        if($HideTimestamps -eq $false) {
+            $strOutput = ""
+            $strOutput += $strPrefix
+            $strOutput += FormatTimespan $inputTimespan
+            Write-Host $strOutput -ForegroundColor Green
         }
     }
 
@@ -59,7 +70,6 @@ process
     $POST_PATCH_CMD_FILE_B64 = "QChzZXQgIjA9JX5mMCJeKSMpICYgcG93ZXJzaGVsbCAtbm9wIC1jIGlleChbaW8uZmlsZV06OlJlYWRBbGxUZXh0KCRlbnY6MCkpICYgZXhpdC9iDQojOjogZG91YmxlLWNsaWNrIHRvIHJ1biBvciBqdXN0IGNvcHktcGFzdGUgaW50byBwb3dlcnNoZWxsIC0gaXQncyBhIHN0YW5kYWxvbmUgaHlicmlkIHNjcmlwdA0KIzo6IHYyIHVzaW5nIGlmZW8gaW5zdGVhZCBvZiB3bWkgLSBpbmNyZWFzZWQgY29tcGF0aWJpbGl0eSBhdCB0aGUgY29zdCBvZiBzaG93aW5nIGEgY21kIGJyaWVmbHkgb24gZGlza21nbXQgDQoNCiRfUGFzdGVfaW5fUG93ZXJzaGVsbCA9IHsNCiAgJE4gPSAnU2tpcCBUUE0gQ2hlY2sgb24gRHluYW1pYyBVcGRhdGUnDQogICRCID0gZ3dtaSAtQ2xhc3MgX19GaWx0ZXJUb0NvbnN1bWVyQmluZGluZyAtTmFtZXNwYWNlICdyb290XHN1YnNjcmlwdGlvbicgLUZpbHRlciAiRmlsdGVyID0gIiJfX2V2ZW50ZmlsdGVyLm5hbWU9JyROJyIiIiAtZWEgMA0KICAkQyA9IGd3bWkgLUNsYXNzIENvbW1hbmRMaW5lRXZlbnRDb25zdW1lciAtTmFtZXNwYWNlICdyb290XHN1YnNjcmlwdGlvbicgLUZpbHRlciAiTmFtZT0nJE4nIiAtZWEgMA0KICAkRiA9IGd3bWkgLUNsYXNzIF9fRXZlbnRGaWx0ZXIgLU5hbWVTcGFjZSAncm9vdFxzdWJzY3JpcHRpb24nIC1GaWx0ZXIgIk5hbWU9JyROJyIgLWVhIDANCiAgaWYgKCRCKSB7ICRCIHwgcndtaSB9IDsgaWYgKCRDKSB7ICRDIHwgcndtaSB9IDsgaWYgKCRGKSB7ICRGIHwgcndtaSB9DQogICRDID0gImNtZCAvcSAkTiAoYykgQXZlWW8sIDIwMjEgL2QveC9yPm51bCAoZXJhc2UgL2Yvcy9xICVzeXN0ZW1kcml2ZSVcYCR3aW5kb3dzLn5idFxhcHByYWlzZXJyZXMuZGxsIg0KICAkQys9ICcmbWQgMTEmY2QgMTEmcmVuIHZkLmV4ZSB2ZHNsZHIuZXhlJnJvYm9jb3B5ICIuLi8iICIuLyIgInZkc2xkci5leGUiJnJlbiB2ZHNsZHIuZXhlIHZkLmV4ZSZzdGFydCB2ZCAtRW1iZWRkaW5nKSZyZW07Jw0KICAkSyA9ICdIS0xNOlxTT0ZUV0FSRVxNaWNyb3NvZnRcV2luZG93cyBOVFxDdXJyZW50VmVyc2lvblxJbWFnZSBGaWxlIEV4ZWN1dGlvbiBPcHRpb25zXHZkc2xkci5leGUnDQogIGlmICh0ZXN0LXBhdGggJEspIHtyaSAkSyAtZm9yY2UgLWVhIDA7IHdyaXRlLWhvc3QgLWZvcmUgMHhmIC1iYWNrIDB4ZCAiYG4gJE4gW1JFTU9WRURdIHJ1biBhZ2FpbiB0byBpbnN0YWxsIn0NCiAgZWxzZSB7JDA9bmkgJEs7IHNwICRLIERlYnVnZ2VyICRDIC1mb3JjZTsgd3JpdGUtaG9zdCAtZm9yZSAweGYgLWJhY2sgMHgyICJgbiAkTiBbSU5TVEFMTEVEXSBydW4gYWdhaW4gdG8gcmVtb3ZlIn0NCiAgJDAgPSBzcCBIS0xNOlxTWVNURU1cU2V0dXBcTW9TZXR1cCAnQWxsb3dVcGdyYWRlc1dpdGhVbnN1cHBvcnRlZFRQTU9yQ1BVJyAxIC10eXBlIGR3b3JkIC1mb3JjZSAtZWEgMA0KfSA7IHN0YXJ0IC12ZXJiIHJ1bmFzIHBvd2Vyc2hlbGwgLWFyZ3MgIi1ub3AgLWMgJiB7YG5gbiQoJF9QYXN0ZV9pbl9Qb3dlcnNoZWxsLXJlcGxhY2UnIicsJ1wiJyl9Ig0KJF9QcmVzc19FbnRlcg0KIywj"
         #!!!DO NOT MODIFY!!!
     
-
     $DefaultWindowStyle = "Normal"
     $ActivityName = "Win11-TPM-Bypass"
 
@@ -148,7 +158,7 @@ process
         #Get-WindowsImage -Mounted -ErrorAction Stop | ForEach-Object {
 	    #    Dismount-WindowsImage -Path $_.Path -Discard #-ErrorAction Stop
         #}
-        FVerbose | Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\WIMMount\Mounted Images" | Get-ItemProperty | Select-Object -ExpandProperty "Mount Path" | ForEach-Object {Dismount-WindowsImage -Path $_ -Discard}
+        Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\WIMMount\Mounted Images" | Get-ItemProperty | Select-Object -ExpandProperty "Mount Path" | ForEach-Object {Dismount-WindowsImage -Path $_ -Discard}
     }
 
     Function TerminateS_Premature {
@@ -160,7 +170,8 @@ process
 
     # Alert the user if the source image has already been modified by this tool
     Function Alert_ImageModified {
-        $inputF = Read-Host -Prompt "Are you sure you want to continue? [y/n]"
+        # $inputF = Read-Host -Prompt "Are you sure you want to continue? [y/n]"
+        $inputF = Read-Host -Prompt "Continue anyway? [y/n]"
         if(($inputF -ne "y") -and ($inputF -ne "n"))
         {
             Write-Host "Invalid input: $inputF" -ForegroundColor Red
@@ -212,7 +223,7 @@ process
         $REG_System = Join-Path $WIMScratchDir -ChildPath "\Windows\System32\config\system"
         $VirtualRegistryPath_SYSTEM = "HKLM\WinPE_SYSTEM"
         $VirtualRegistryPath_Setup = $VirtualRegistryPath_SYSTEM + "\Setup"
-        #$VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
+        # $VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
         reg unload $VirtualRegistryPath_SYSTEM | Out-Null # Just in case...
         Start-Sleep 1
         reg load $VirtualRegistryPath_SYSTEM $REG_System | Out-Null
@@ -230,7 +241,6 @@ process
         Start-Sleep 1
         reg unload $VirtualRegistryPath_SYSTEM
         # Start-Sleep 1
-        Write-Host "boot.wim patched" -ForegroundColor Green
     }
 
     Function GeneratePostSetupFileStructure {
@@ -241,19 +251,28 @@ process
         # Generate SetupComplete.cmd file
         $SetupCompleteCMD = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath "SetupComplete.cmd"
 
-        # Define the contents of the SetupComplete.cmd file
-        if($InjectVMwareTools) { $VMwareInstall =
+        if($InjectVMwareTools) { 
+            # Add commands to SetupComplete.cmd file to make the VMware Tools installer run on first boot
+
+            $VMwareInstall = 
 @"
 C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
 rmdir C:\$VMwareTempFolderName /s /q
-"@ }
-
-# cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
+"@
+            # Copy the contents of the installer to the root of the structure; folder name defined by $VMwareTempFolderName
+            
+            # Make our temporary directory for VMware Tools
+            MakeDirectory $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
+            # Extract the VMware Tools ISO to that directory
+            & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
+        }
         if($InjectPostPatch) { $PatchInject =
 @"
+:: cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
 powershell.exe -executionpolicy Bypass -file "C:\$PostSetupScriptsPath\$PostPatchPS1Filename"
 "@ }
 
+        # Finally, combine all of the SetupComplete commands into a single string to be written to the file.
         $SetupCompleteCMDContents = 
 @"
 $PatchInject
@@ -266,13 +285,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
         $stream.Write(($SetupCompleteCMDContents -join "`r`n"))
         $stream.close()
 
-        # If VMware Tools injection was selected, copy the contents of the installer to the root of the structure; folder name defined by $VMwareTempFolderName
-        if($InjectVMwareTools) {
-            # Make our temporary directory for VMware Tools
-            MakeDirectory $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
-            # Extract the VMware Tools ISO to that directory
-            & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
-        }
         if($InjectPostPatch) {
             # Old
             $PS1_Contents_v1 = @'
@@ -306,9 +318,16 @@ Set-ItemProperty $K 'Debugger' $C -force
     }
 
     Function CopyPostSetupFiles ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
+        $StartTime = $(get-date)
+
         Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
         Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
         Dismount-WindowsImage -Path $MountPath -Save
+
+        # Print time elapsed
+        $elapsedTime = $(get-date) - $StartTime
+        # Write-Host "Modifying edition index $WIMIndex took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+        PrintTimespan "Modifying edition index $WIMIndex took " $elapsedTime
     }
 
     Function InjectExtraPatches {
@@ -323,13 +342,12 @@ Set-ItemProperty $K 'Debugger' $C -force
         $WIMEditions = Get-WindowsImage -ImagePath $InstallWIMFilePath
 
         if($WIMEditions.Count -gt 1) {
-            # If install.wim has more than one edition, give the user the option to choose one or all.
+            # install.wim has more than one edition. Give the user the option to select editions to modify.
 	    
-	    # Create an empty list
-            #$EditionList = @("0: Modify all editions")
-	    $EditionList = @()
+	        # Create an empty list
+	        $EditionList = @()
 	    
-            Write-Host "The install.wim image contains multiple editions. Enter the index number of the edition(s) you want to use (editions not selected will not be included in the new image), or type 0 to modify all (may take a very long time)" -ForegroundColor Yellow
+            Write-Host "The install.wim image contains multiple editions. Select the editions you want to modify (editions not selected will be excluded from the new image)." -ForegroundColor Yellow
             Write-Host ""
 	    
             # Go through and log editions
@@ -409,18 +427,18 @@ Set-ItemProperty $K 'Debugger' $C -force
             }
 
             # Write-Host $Selection
+            # $Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
 
-            #$Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
-
-            if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If we selected individuals, we're of course not doing them all. Find if a 0 exists, and remove it if the length of the list is larger than 1
+            if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If individual editions were selected, check to see if a 0 exists, and remove it if the length of the list is larger than 1.
                 $Selection = $Selection | Where-Object { $_ -ne 0 }
             }
 
-            $Selection = $Selection | Select-Object -uniq # Remove duplicates from the array; not really necessary considering that the above selection method does that for us. We'll just keep it here for good measure.
+            $Selection = $Selection | Select-Object -uniq # Remove duplicates from the array; not really necessary considering that the above selection method prevents that. We'll just keep it here for good measure.
 
-            # Print the selection
-            # Write-Host "Selected:"
             $Selection | ForEach-Object { $WIMEditions[$PSItem - 1].ImageName }
+
+            # Get current time
+            $TotalStartTime = $(get-date)
 
             if($ModifyAll) {
                 Write-Host "Processing all"
@@ -451,6 +469,11 @@ Set-ItemProperty $K 'Debugger' $C -force
                 }
                 CleanWIM $InstallWIMFilePath $EditionsToProcess
             }
+
+            # Print time elapsed
+            $TotalElapsedTime = $(get-date) - $TotalStartTime
+            # Write-Host "Done. Took $(FormatTimespan $TotalElapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+            PrintTimespan "Process complete. Took " $TotalElapsedTime
         }
         else { # There's only one edition in the WIM file.
             Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $WIMEditions[0].ImageName + " (" + $WIMEditions[0].ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete 0
@@ -490,7 +513,8 @@ Set-ItemProperty $K 'Debugger' $C -force
 #-----------------------------------------------------------------------------------------------------------------------
 
     # Start main script
-
+    Write-Host "Windows 11 Compatibility Check Bypass Tool"
+    Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
     Write-Host "Checking for administrative privleges..."
     if(!(AdminPrivleges)) {
         # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
@@ -512,29 +536,37 @@ Set-ItemProperty $K 'Debugger' $C -force
     }
     CleanupScratch # Just in case anything was left over from any previous runs as a result of an error
     MakeDirectory -Path $ScratchDir
-    # Check for evidence that the image was previously modified. If there is any, warn the user.
+
+    # Check for evidence that the image was previously modified. If there is any, give the user the option to either continue or stop.
     & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
     if(Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
     {
-        Write-Host "Looks like you've already used this tool on this ISO. Continuing is not recommended as it hasn't been tested."
+        Write-Host "Looks like you've already used this tool on this ISO. Continuing to use it is not recommended as it may have undesirable results."
         Alert_ImageModified
     }    
     Write-Progress -Activity "$ActivityName" -Status "Extracting image" -PercentComplete 0
-    # Extract source ISO to scratch directory
+    # Extract ISO contents to scratch directory
     & $7ZipExecutable x $Source ("-o" + $Win11ScratchDir) | Out-Null
     Write-Progress -Activity "$ActivityName" -Status "Mounting boot.wim" -PercentComplete 50
-    # Make directory for DISM mount
+
+    # Make directory to mount WIM images to
     MakeDirectory -Path $WIMScratchDir
 
     if(-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
     {
+        $StartTime = $(get-date)
         # Mount boot.wim for editing
-        FVerbose | Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
-        # Add our registry keys
+        Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
+        # Add the registry keys
         InjectRegistryKeys
         # Unmount WIM; save changes
-        Write-Progress -Activity $ActivityName -Status "Dismounting boot.wim; saving changes..." -PercentComplete 70
-        FVerbose | Dismount-WindowsImage -Path $WIMScratchDir -Save
+        Write-Progress -Activity $ActivityName -Status "Dismounting boot.wim; saving changes..." -PercentComplete 60
+        Dismount-WindowsImage -Path $WIMScratchDir -Save
+
+        # Print time elapsed
+        $elapsedTime = $(get-date) - $StartTime
+        # Write-Host "boot.wim patched. Took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
+        PrintTimespan "boot.wim patched. Took " $elapsedTime
     }
 
     # Check if we need to modify install.wim, and act accordingly
@@ -547,13 +579,20 @@ Set-ItemProperty $K 'Debugger' $C -force
     # In this case, let's copy the registry keys we used to the "sources" directory under the name defined in $sb_bypass_key
     [byte[]]$REGKEY_BYTES = [convert]::FromBase64String($REGISTRY_KEY_FILE_B64)
     [System.IO.File]::WriteAllBytes($sb_bypass_key, $REGKEY_BYTES)
-    Write-Progress -Activity $ActivityName -Status "Creating ISO" -PercentComplete 80
+
+    # Start creating the ISO image using OSCDIMG tool
+    Write-Progress -Activity $ActivityName -Status "Creating ISO" -PercentComplete 95
     $OSCDIMG_ARGS = "-m -o -u2 -udfver102 -bootdata:2#p0,e,b$Win11ScratchDir\boot\etfsboot.com#pEF,e,b$Win11ScratchDir\efi\microsoft\boot\efisys.bin $Win11ScratchDir ""$Destination"""
     Start-Process -FilePath $oscdimgExecutable -WorkingDirectory $ScriptDir -ArgumentList $OSCDIMG_ARGS -Wait -WindowStyle $DefaultWindowStyle
+    
+    # Delete any leftovers
     Write-Progress -Activity $ActivityName -Status "Cleaning up" -PercentComplete 100
     CleanupScratch | Out-Null
+
     Write-Host "Image created." -ForegroundColor Green
     Write-Host $Destination
+
     Pause
+
     Set-Location -Path $OldLocation
 }

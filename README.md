@@ -7,6 +7,13 @@ This tool creates a modified Windows 11 installer ISO using an existing one, con
 
 **I am also developing a command-line interface tool for UUP Dump, so that you can download the latest update package for a given channel, and generate an installable ISO for use with this script. Using just a single command. Requires Python 3 and the `requests` module. You can check out the project [here](https://github.com/JosephM101/uupdump_cli#one-line-run).**
 
+### Extras:
+Looking for some Windows 11 hacks? I have some scripts uploaded on [another repository](https://github.com/JosephM101/Windows11_Mods).
+
+------
+
+***Please note that this tool does not allow Windows 11 to be installed on 32-bit (x86) platforms. Windows 11 is a 64-bit-only OS, and therefore will not work at all on older architectures such as 32-bit (x86).***
+
 ------
 
 ### How it works:
@@ -16,7 +23,7 @@ This workaround injects three keys into the registry of the Windows Setup enviro
 The installer for Windows 11 checks for both TPM and Secure Boot, and will not install on "unsupported" processors. However, many of the devices that don't have TPM, Secure Boot, or a compatible processor, are perfectly capable of running Windows 11.
 
 ## Usage
-#### TIP: It's recommended to copy or move the Windows 11 ISO image to the same directory as the script to make things easy.
+#### TIP: It's recommended to copy or move the Windows 11 ISO image to the same directory as the script to make things easy. If you have any issues with the script, please do not hesitate to open an issue.
 - In the repository directory, run `env.bat`. This will open up a new elevated PowerShell window in the repository.
 - Type `.\Win11-TPM-RegBypass.ps1` in the PowerShell window, but don't hit Enter just yet.
 - Follow up with `-Source`. This is where you're going to define the location of the Windows 11 ISO you want to use.
@@ -39,8 +46,9 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 - `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
 
 ### Other switches
-- `-VerboseMode` - Enable verbose output
+- `-VerboseMode` - Enable verbose output, which isn't much
 - `-GuiSelectMode` - Shows a GUI for selecting multiple editions to modify as opposed to the CLI-based selection method
+- `HideTimestamps` - Disable printing the amount of time it took to complete a process
 
 --------
 
