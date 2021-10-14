@@ -39,8 +39,9 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 - `-InjectPostPatch` - (EXPERIMENTAL) Injects a script into the install.wim image to run when the system boots for the first time. The modifications the script makes are expected to force upgrades done through Windows Update to ignore checking for TPM and CPU compatibility, allowing these upgrade to take place.
 
 ### Other switches
-- `-VerboseMode` - Enable verbose output
+- `-VerboseMode` - Enable verbose output, which isn't much
 - `-GuiSelectMode` - Shows a GUI for selecting multiple editions to modify as opposed to the CLI-based selection method
+- `HideTimestamps` - Disable printing the amount of time it took to complete a process
 
 --------
 
