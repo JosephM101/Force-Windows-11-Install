@@ -537,12 +537,12 @@ Set-ItemProperty $K 'Debugger' $C -force
             Write-Host "Preparing system for upgrade..." -NoNewline
 
             $N = $PostPatch_WMISubscriptionName
-            $0 = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
+            $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
             $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
             $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
             $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-            $0 = New-Item $K -force -ea 0
-            $0 = Set-ItemProperty $K 'Debugger' $C -force
+            $null = New-Item $K -force -ea 0
+            $null = Set-ItemProperty $K 'Debugger' $C -force
 
             Write-Host " done" -ForegroundColor Green
             Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your systen for the changes to take effect."
@@ -553,7 +553,7 @@ Set-ItemProperty $K 'Debugger' $C -force
         Write-Host "Undoing system changes..." -NoNewline
 
         $N = $PostPatch_WMISubscriptionName
-        $0 = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 0 -type dword -force -ea 0
+        $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 0 -type dword -force -ea 0
         $B = gwmi -Class __FilterToConsumerBinding -Namespace 'root\subscription' -Filter "Filter = ""__eventfilter.name='$N'""" -ea 0
         $C = gwmi -Class CommandLineEventConsumer -Namespace 'root\subscription' -Filter "Name='$N'" -ea 0
         $F = gwmi -Class __EventFilter -NameSpace 'root\subscription' -Filter "Name='$N'" -ea 0
