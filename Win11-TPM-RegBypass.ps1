@@ -7,12 +7,14 @@ param
     [Parameter(ParameterSetName='Extra',Mandatory=$false)][switch] 
     $UpgradeMode = $false,
 
+    # Allow parameter to be passed even if -UpgradeMode was passed, but don't make it mandatory.
     [Parameter(Position=0,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [Parameter(Position=0,ParameterSetName='Main',Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [ValidateNotNullOrEmpty()] 
     [string]
     $Source,
 
+    # Allow parameter to be passed even if -UpgradeMode was passed, but don't make it mandatory.
     [Parameter(Position=0,ParameterSetName='Extra',ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [Parameter(Position=1,ParameterSetName='Main',Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [ValidateNotNullOrEmpty()] 
@@ -145,7 +147,7 @@ process
         }
     }
 
-    Function AdminPrivleges {
+    Function HasAdminPrivileges {
         return ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     }
 
@@ -583,20 +585,19 @@ Set-ItemProperty $K 'Debugger' $C -force
     Write-Host "Windows 11 Compatibility Check Bypass Tool"
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
 
-    # Write-Host "Checking for administrative privleges..."
-    # if(!(AdminPrivleges)) {
-    #     # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
-    #     Write-Host "This script requires administrative privleges to run." -ForegroundColor Red
-    #     Exit
-    # }
-
-    # If UpgradeMode is passed, and neither Source nor Destination are specified, then skip everything else.
+    Write-Host "Checking for administrative privileges..."
+    if(!(HasAdminPrivileges)) {
+        # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
+        Write-Host "This script requires administrative privileges to run." -ForegroundColor Red
+        Exit
+    }
 
     if($UndoUpgradeMode) {
         Undo_PrepareSystemForUpgrade
         Exit
     }
-ƒ
+
+    # Check if Source and Destination are null or contain whitespace. If true, it's likely that -UpgradeMode was passed.
     if([string]::IsNullOrWhitespace($Source) -or [string]::IsNullOrWhitespace($Destination)) {
         #if($UpgradeMode)
         #{
@@ -605,6 +606,7 @@ Set-ItemProperty $K 'Debugger' $C -force
         #else {
         #    Write-Host "Source and Destination are null, and UpgradeMode is false."
         #}
+        Write-Host "Upgrade mode"
         PrepareSystemForUpgrade
         Exit
     }
@@ -614,7 +616,7 @@ Set-ItemProperty $K 'Debugger' $C -force
             # Write-Host "Source and Destination are not null, and UpgradeMode is true."
         }
         else {
-            Write-Host "Either Source or Destination was not defined." -ForegroundColor Red
+            Write-Host "Source or Destination parameters are null, empty, or contain whitespace." -ForegroundColor Red
             Exit
         }
     }
