@@ -224,7 +224,7 @@ process
         $REG_System = Join-Path $WIMScratchDir -ChildPath "\Windows\System32\config\system"
         $VirtualRegistryPath_SYSTEM = "HKLM\WinPE_SYSTEM"
         $VirtualRegistryPath_Setup = $VirtualRegistryPath_SYSTEM + "\Setup"
-        $VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
+        # $VirtualRegistryPath_LabConfig = $VirtualRegistryPath_Setup + "\LabConfig"
         reg unload $VirtualRegistryPath_SYSTEM | Out-Null # Just in case...
         Start-Sleep 1
         reg load $VirtualRegistryPath_SYSTEM $REG_System | Out-Null
@@ -460,7 +460,7 @@ $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTP
             # Print time elapsed
             $TotalElapsedTime = $(get-date) - $TotalStartTime
             # Write-Host "Done. Took $(FormatTimespan $TotalElapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
-            PrintTimespan "Done. Took " $elapsedTime
+            PrintTimespan "Process complete. Took " $TotalElapsedTime
         }
         else { # There's only one edition in the WIM file.
             Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $WIMEditions[0].ImageName + " (" + $WIMEditions[0].ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete 0
