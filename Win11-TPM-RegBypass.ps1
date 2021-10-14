@@ -259,7 +259,6 @@ process
 C:\$VMwareTempFolderName\setup64.exe /S /v "/qn REBOOT=R ADDLOCAL=ALL"
 rmdir C:\$VMwareTempFolderName /s /q
 "@
-
             # Copy the contents of the installer to the root of the structure; folder name defined by $VMwareTempFolderName
             
             # Make our temporary directory for VMware Tools
