@@ -24,14 +24,14 @@ param
     $VerboseMode = $false,
 
     [switch]
+    $UpgradeMode = $false,
+
+    [switch]
     $SkipReg = $false
 )
 
 process
 {
-#null:
-#command > $null
-
     Function MakeDirectory ($path) {
         if($VerboseMode) {
             mkdir $path
