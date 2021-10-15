@@ -105,43 +105,33 @@ process
 
     # Declarations
     
-    #$Is64BitSystem = [Environment]::Is64BitOperatingSystem
-    $Is64BitSystem = $false
+    $Is64BitSystem = [Environment]::Is64BitOperatingSystem
+    #$Is64BitSystem = $false
 
-    if($IsWindows)
-    {
-        $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
-        #$ScriptExec = $script:MyInvocation.MyCommand.Path
-
-        $7ZipExecutable = Join-Path -Path $ScriptDir -ChildPath "7z\7z.exe"
-        $oscdimgExecutable = ".\oscdimg\oscdimg"
-        $oscdimgExecutableFull = Join-Path -Path $ScriptDir -ChildPath "oscdimg\oscdimg.exe"
-
-        $ScratchDir = "C:\Scratch"
-        $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
-        $Win11ScratchDir = Join-Path -Path $ScratchDir -ChildPath "W-ISO"
-        $BootWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\boot.wim"
-        $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
-        $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
-        $BootWimImageIndex = 2
-
-        $sb_bypass_keyname = "win11-tpm-sb-bypass"
-        $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
-
-        $PostSetupScriptsPath = "Windows\Setup\Scripts"
-        $PostPatchCMDFilename = "SkipTPM.cmd"
-        $PostPatchPS1Filename = "SkipTPM.ps1"
-
-        $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
-        $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
-
-        $VMwareTempFolderName = "vmwaretools"
-        $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
-        #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
-        $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
-
-        $32Bit_System_Error_Message = "ERROR: This device does not support Windows 11, as it is a 32-bit device. Windows 11 will only run on 64-bit devices."
-    }
+    $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
+    #$ScriptExec = $script:MyInvocation.MyCommand.Path
+    $7ZipExecutable = Join-Path -Path $ScriptDir -ChildPath "7z\7z.exe"
+    $oscdimgExecutable = ".\oscdimg\oscdimg"
+    $oscdimgExecutableFull = Join-Path -Path $ScriptDir -ChildPath "oscdimg\oscdimg.exe"
+    $ScratchDir = "C:\Scratch"
+    $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
+    $Win11ScratchDir = Join-Path -Path $ScratchDir -ChildPath "W-ISO"
+    $BootWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\boot.wim"
+    $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
+    $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
+    $BootWimImageIndex = 2
+    $sb_bypass_keyname = "win11-tpm-sb-bypass"
+    $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
+    $PostSetupScriptsPath = "Windows\Setup\Scripts"
+    $PostPatchCMDFilename = "SkipTPM.cmd"
+    $PostPatchPS1Filename = "SkipTPM.ps1"
+    $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
+    $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
+    $VMwareTempFolderName = "vmwaretools"
+    $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
+    #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
+    $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
+    $32Bit_System_Error_Message = "ERROR: This device does not support Windows 11, as it is a 32-bit device. Windows 11 will only run on 64-bit devices."
 
     $PostPatch_WMISubscriptionName = 'Skip TPM Check on Dynamic Update'
 
