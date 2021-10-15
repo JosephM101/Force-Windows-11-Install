@@ -1,11 +1,11 @@
-# Ascii graphics generated with https://patorjk.com/software/taag/
+# Ascii graphics generated using https://patorjk.com/software/taag/
 
-# __        __  _           _   _     _____   ____    __  __     ____                                      
-# \ \      / / (_)  _ __   / | / |   |_   _| |  _ \  |  \/  |   | __ )   _   _   _ __     __ _   ___   ___ 
-#  \ \ /\ / /  | | | '_ \  | | | |     | |   | |_) | | |\/| |   |  _ \  | | | | | '_ \   / _` | / __| / __|
-#   \ V  V /   | | | | | | | | | |     | |   |  __/  | |  | |   | |_) | | |_| | | |_) | | (_| | \__ \ \__ \
-#    \_/\_/    |_| |_| |_| |_| |_|     |_|   |_|     |_|  |_|   |____/   \__, | | .__/   \__,_| |___/ |___/
-#                                                                        |___/  |_|                        
+# __        __  _           _   _     _____   ____    __  __     ____                                     
+# \ \      / / (_)  _ __   / | / |   |_   _| |  _ \  |  \/  |   | __ )   _   _   _ __    __ _   ___   ___ 
+#  \ \ /\ / /  | | | '_ \  | | | |     | |   | |_) | | |\/| |   |  _ \  | | | | | '_ \  / _` | / __| / __|
+#   \ V  V /   | | | | | | | | | |     | |   |  __/  | |  | |   | |_) | | |_| | | |_) || (_| | \__ \ \__ \
+#    \_/\_/    |_| |_| |_| |_| |_|     |_|   |_|     |_|  |_|   |____/   \__, | | .__/  \__,_| |___/ |___/
+#                                                                        |___/  |_|                       
 
 [CmdletBinding(DefaultParametersetName='Main')] 
 param
@@ -234,11 +234,6 @@ process
 
     Function AnnounceProgress_RunningExtraTasks {
         Write-Progress -Activity $ActivityName -Status "Executing extra tasks..." -PercentComplete 75
-    }
-
-    if(Test-Path $Destination)
-    {
-        Alert_DestinationImageAlreadyExists
     }
 
     # Features
@@ -559,7 +554,9 @@ Set-ItemProperty $K 'Debugger' $C -force
                 $null = Set-ItemProperty $K 'Debugger' $C -force
 
                 Write-Host " done" -ForegroundColor Green
-                Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your system for the changes to take effect."
+                Write-Host "System patched." -ForegroundColor Green
+                #Write-Host "You can now try upgrading, but you may need to reboot your system for the changes to take effect."
+                # Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your system for the changes to take effect."
             } else {
                 Write-Host $32Bit_System_Error_Message -ForegroundColor Red
             }
@@ -679,6 +676,11 @@ Set-ItemProperty $K 'Debugger' $C -force
     Set-Location -Path $ScriptDir # In case we aren't there already. It's a good idea for the PowerShell instance to be in the same directory as the commands we will be referencing.
     
     Write-Host "Getting required information..." -ForegroundColor Yellow
+
+    if(Test-Path $Destination)
+    {
+        Alert_DestinationImageAlreadyExists
+    }
 
     # Write-Host "Checking if 7z exists..." -ForegroundColor Yellow -NoNewline
     # $7z_exists = Test-Path $7ZipExecutable
