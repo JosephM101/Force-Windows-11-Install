@@ -543,7 +543,7 @@ Set-ItemProperty $K 'Debugger' $C -force
     Function PrepareSystemForUpgrade {
         if ($PrepareUpgrade) {
             if($Is64BitSystem) {
-                Write-Host "Preparing system for upgrade..." -NoNewline
+                Write-Host "Preparing system for upgrade..." -ForegroundColor Yellow -NoNewline
 
                 $N = $PostPatch_WMISubscriptionName
                 $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
@@ -588,7 +588,7 @@ Set-ItemProperty $K 'Debugger' $C -force
             }
 
             Write-Host " done" -ForegroundColor Green
-            Write-Host "Modifications that were made to your PC by the -PrepareUpgrade flag have been reverted. You may need to reboot for the changes to take effect."
+            Write-Host "Modifications that were made to your PC by the -PrepareUpgrade flag have been reverted. You may need to reboot for the changes to take effect." -ForegroundColor Yellow
         } else {
             Write-Host $32Bit_System_Error_Message -ForegroundColor Red
             Write-Host "Nothing to undo."
@@ -668,7 +668,6 @@ Set-ItemProperty $K 'Debugger' $C -force
         }
     }
     catch {
-        # We're not supposed to be here, either.
         Write-Host $DISMModule_ErrorMessage -ForegroundColor Red
         Exit
     }
