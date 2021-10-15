@@ -617,7 +617,7 @@ Set-ItemProperty $K 'Debugger' $C -force
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Write-Host "Windows 11 Compatibility Check Bypass Tool"
+    Write-Host "Windows 11 Compatibility Check Bypass Tool v1.1"
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
 
     Write-Host "Checking for administrative privileges..."
@@ -633,26 +633,10 @@ Set-ItemProperty $K 'Debugger' $C -force
         Exit
     }
 
-    # Check if Source and Destination are null or contain whitespace. If true, it's likely that -PrepareUpgrade was passed.
-    if([string]::IsNullOrWhitespace($Source) -or [string]::IsNullOrWhitespace($Destination)) {
-        #if($PrepareUpgrade)
-        #{
-        #    Write-Host "Source and Destination are null, and PrepareUpgrade is true."
-        #}
-        #else {
-        #    Write-Host "Source and Destination are null, and PrepareUpgrade is false."
-        #}
-        Write-Host "Prepare system for upgrade"
-        PrepareSystemForUpgrade
-        Exit
-    }
-    else {
-        if($PrepareUpgrade)
-        {
-            # Write-Host "Source and Destination are not null, and PrepareUpgrade is true."
-        }
-        else {
-            Write-Host "Source or Destination parameters are null, empty, or contain whitespace." -ForegroundColor Red
+    if($PrepareUpgrade) {
+        if([string]::IsNullOrEmpty($Source) -or [string]::IsNullOrEmpty(($Destination))) {
+            Write-Host "Prepare system for upgrade"
+            PrepareSystemForUpgrade
             Exit
         }
     }
