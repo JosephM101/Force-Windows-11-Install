@@ -64,7 +64,7 @@ param
 process
 {
     # The first thing we should do is check if this script is running on anything but Windows, and terminate with a message if that's the case.
-    if(-not $IsWindows) { Write-Host "This script will only work on Windows systems." -ForegroundColor Red ; Exit }
+    if($IsWindows -eq $false) { Write-Host "This script will only work on Windows systems." -ForegroundColor Red ; Exit }
 
     Function MakeDirectory ($path) {
         if($VerboseMode) {
