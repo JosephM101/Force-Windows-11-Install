@@ -570,17 +570,17 @@ Set-ItemProperty $K 'Debugger' $C -force
 
             $N = $PostPatch_WMISubscriptionName
             $null = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 0 -type dword -force -ea 0
-            $B = gwmi -Class __FilterToConsumerBinding -Namespace 'root\subscription' -Filter "Filter = ""__eventfilter.name='$N'""" -ea 0
-            $C = gwmi -Class CommandLineEventConsumer -Namespace 'root\subscription' -Filter "Name='$N'" -ea 0
-            $F = gwmi -Class __EventFilter -NameSpace 'root\subscription' -Filter "Name='$N'" -ea 0
+            $B = Get-WmiObject -Class __FilterToConsumerBinding -Namespace 'root\subscription' -Filter "Filter = ""__eventfilter.name='$N'""" -ea 0
+            $C = Get-WmiObject -Class CommandLineEventConsumer -Namespace 'root\subscription' -Filter "Name='$N'" -ea 0
+            $F = Get-WmiObject -Class __EventFilter -NameSpace 'root\subscription' -Filter "Name='$N'" -ea 0
             if ($B) { 
-                $B | rwmi 
+                $B | Remove-WMIObject 
             }
             if ($C) { 
-                $C | rwmi 
+                $C | Remove-WMIObject 
             } 
             if ($F) { 
-                $F | rwmi 
+                $F | Remove-WMIObject 
             }
             $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
             if (test-path $K) {
