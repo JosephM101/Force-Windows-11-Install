@@ -118,7 +118,10 @@ process
     $BootWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\boot.wim"
     $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
     $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
+
+    # Installation part of boot.wim is located at WIM index 2.
     $BootWimImageIndex = 2
+    
     $sb_bypass_keyname = "win11-tpm-sb-bypass"
     $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
     $PostSetupScriptsPath = "Windows\Setup\Scripts"
