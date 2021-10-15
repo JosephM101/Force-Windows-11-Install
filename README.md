@@ -27,7 +27,7 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 - In the repository directory, run `env.bat`. This will open up a new elevated PowerShell window in the repository.
 - Type `.\Win11-TPM-RegBypass.ps1` in the PowerShell window, but don't hit Enter just yet.
 - Follow up with `-Source`. This is where you're going to define the location of the Windows 11 ISO you want to use.
-**TIP: If your Windows 11 ISO is not in the same directory as the script, you can locate the ISO with File Explorer, select it, then click "Copy path" in the File Explorer ribbon, or hold down Shift and right-click the file, the click "Copy as path" in the context menu.** 
+**TIP: If your Windows 11 ISO is not in the same directory as the script, you can locate the ISO with File Explorer, select it, then click "Copy path" in the File Explorer ribbon, or hold down Shift and right-click the file, the click "Copy as path" in the context menu. (Windows 10)** 
 
 ![image](https://user-images.githubusercontent.com/28277730/127249747-aee0fda7-bfaa-450b-b58b-1b3030ba0e56.png)
 
