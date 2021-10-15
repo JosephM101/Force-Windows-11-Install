@@ -555,7 +555,7 @@ Set-ItemProperty $K 'Debugger' $C -force
 
                 Write-Host " done" -ForegroundColor Green
                 Write-Host "System patched." -ForegroundColor Green
-                #Write-Host "You can now try upgrading, but you may need to reboot your system for the changes to take effect."
+                # Write-Host "You can now try upgrading, but you may need to reboot your system for the changes to take effect."
                 # Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your system for the changes to take effect."
             } else {
                 Write-Host $32Bit_System_Error_Message -ForegroundColor Red
