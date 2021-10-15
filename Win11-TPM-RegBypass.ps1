@@ -624,7 +624,7 @@ Set-ItemProperty $K 'Debugger' $C -force
     if(!(HasAdminPrivileges)) {
         # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
         Write-Host "This script requires administrative privileges to run." -ForegroundColor Red
-        #Exit
+        Exit
     }
 
     if($UndoPrepareUpgrade) {
