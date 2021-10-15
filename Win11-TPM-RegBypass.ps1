@@ -106,7 +106,6 @@ process
     # Declarations
     
     $Is64BitSystem = [Environment]::Is64BitOperatingSystem
-    #$Is64BitSystem = $false
 
     $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
     #$ScriptExec = $script:MyInvocation.MyCommand.Path
