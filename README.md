@@ -12,7 +12,7 @@ Looking for some Windows 11 hacks? I have some mod scripts on another repository
 
 ------
 
-***Please note that this tool does not allow Windows 11 to be installed on 32-bit (x86) platforms. Windows 11 is a 64-bit-only OS, and therefore will not work at all on older architectures such as 32-bit (x86).***
+***Please note that this tool does not allow Windows 11 to be installed on 32-bit (x86) platforms. Windows 11 is a 64-bit-only OS, and therefore will not work at all on older architectures such as 32-bit (x86). If you are unsure what architecture your system is, press Win+R, type `cmd`, and press Enter. Then copy and paste the following command in command prompt: `wmic cpu get DataWidth`. If you get `64`, you have a 64-bit processor, and can run Windows 11.***
 
 ------
 
