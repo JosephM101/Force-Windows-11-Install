@@ -64,6 +64,16 @@ The installer for Windows 11 checks for both TPM and Secure Boot, and will not i
 
 --------
 
+# Set-WindowsInsiderRing.ps1
+ Forcibly change the Windows Insider ring (and enable Windows Insider if it is disabled)
+
+### Options
+- `-Dev` - Set ring to Dev
+- `-Beta` - Set ring to Beta
+- `-ReleasePreview` - Set ring to ReleasePreview
+
+--------
+
 # Win11-ImageBuilder (Obsolete)
 Win11-ImageBuilder has been marked obsolete, and is no longer maintained. For the documentation on the tool, [navigate here](https://github.com/JosephM101/Force-Windows-11-Install/blob/main/docs/Documentation%20for%20Win11-ImageBuilder.md).
 
