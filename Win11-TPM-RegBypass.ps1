@@ -47,6 +47,11 @@ param
 
     [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
+    [string]
+    $SetTargetInsiderLevel,
+
+    [Parameter(ParameterSetName='Extra')]
+    [Parameter(ParameterSetName="Main")]
     [switch]
     $HideTimestamps = $false,
 
@@ -414,7 +419,7 @@ Set-ItemProperty $K 'Debugger' $C -force
                         continue
                     }
                     if ($userInput -notin $WIMEditionsCount) {
-                        Write-Host "Invalid value entered."
+                        Write-Host "Invalid value entered." -ForegroundColor Red
                         continue
                     }
                     elseif ($userInput -in $options) {
@@ -437,7 +442,8 @@ Set-ItemProperty $K 'Debugger' $C -force
                     $ModifyAll = $true
                 }
                 else {
-                    Write-Host "Selected: $options"
+                    Write-Host ""
+                    Write-Host "Options selected: $options"
                 }
 
                 $Selection = foreach($indexEntry in $options) {
