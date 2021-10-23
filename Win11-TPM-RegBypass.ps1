@@ -674,42 +674,6 @@ Set-ItemProperty $K 'Debugger' $C -force
         Alert_DestinationImageAlreadyExists
     }
 
-    # Write-Host "Checking if 7z exists..." -ForegroundColor Yellow -NoNewline
-    # $7z_exists = Test-Path $7ZipExecutable
-    # if(!$image_exists)
-    # {
-    #     Write-Host " no" -ForegroundColor Red
-    #     Write-Error -Message "7z: Tool executable does not exist" -Category ObjectNotFound
-    #     Exit
-    # }
-    # else {
-    #     Write-Host " yes" -ForegroundColor Green
-    # }
-    # 
-    # Write-Host "Checking if oscdimg exists..." -ForegroundColor Yellow -NoNewline
-    # $image_exists = Test-Path $oscdimgExecutableFull
-    # if(!$image_exists)
-    # {
-    #     Write-Host " no" -ForegroundColor Red
-    #     Write-Error -Message "OSCDIMG: Tool executable does not exist" -Category ObjectNotFound
-    #     Exit
-    # }
-    # else {
-    #     Write-Host " yes" -ForegroundColor Green
-    # }
-    # 
-    # Write-Host "Checking if ISO image exists..." -ForegroundColor Yellow -NoNewline
-    # $image_exists = Test-Path $Source
-    # if(!$image_exists)
-    # {
-    #     Write-Host " no" -ForegroundColor Red
-    #     Write-Error -Message "Source: File does not exist" -Category ObjectNotFound
-    #     Exit
-    # }
-    # else {
-    #     Write-Host " yes" -ForegroundColor Green
-    # }
-
     # Check to see if we have (and can access) everything we need
     CheckExists $7ZipExecutable "7z" "Tool executable"
     CheckExists $oscdimgExecutableFull "oscdimg" "Tool executable"
