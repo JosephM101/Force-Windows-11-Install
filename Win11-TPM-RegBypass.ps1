@@ -245,6 +245,7 @@ process
     }
 
     # Features
+
     Function InjectRegistryKeys {
         # Mount and edit the setup environment's registry
         Write-Progress -Activity $ActivityName -Status "Editing image registry..." -PercentComplete 60
@@ -255,15 +256,16 @@ process
         reg unload $VirtualRegistryPath_SYSTEM | Out-Null # Just in case...
         Start-Sleep 1
         reg load $VirtualRegistryPath_SYSTEM $REG_System | Out-Null
+
         Set-Location -Path Registry::$VirtualRegistryPath_Setup
+       
         New-Item -Name "LabConfig"
-        #Start-Sleep 1
         New-ItemProperty -Path "LabConfig" -Name "BypassTPMCheck" -Value 1 -PropertyType DWORD -Force
-        #Start-Sleep 1
         New-ItemProperty -Path "LabConfig" -Name "BypassSecureBootCheck" -Value 1 -PropertyType DWORD -Force
-        #Start-Sleep 1
         New-ItemProperty -Path "LabConfig" -Name "BypassRAMCheck" -Value 1 -PropertyType DWORD -Force
-        #Start-Sleep 1
+        New-ItemProperty -Path "LabConfig" -Name "BypassStorageCheck" -Value 1 -PropertyType DWORD -Force
+        New-ItemProperty -Path "LabConfig" -Name "BypassCPUCheck" -Value 1 -PropertyType DWORD -Force
+
         Set-Location -Path $ScriptDir
         CollectGarbage
         Start-Sleep 1
