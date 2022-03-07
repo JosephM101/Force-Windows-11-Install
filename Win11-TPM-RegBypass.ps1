@@ -1,11 +1,19 @@
 # Ascii graphics generated using https://patorjk.com/software/taag/
+<# 
+__        __  _           _   _     _____   ____    __  __     ____                                     
+\ \      / / (_)  _ __   / | / |   |_   _| |  _ \  |  \/  |   | __ )   _   _   _ __    __ _   ___   ___ 
+ \ \ /\ / /  | | | '_ \  | | | |     | |   | |_) | | |\/| |   |  _ \  | | | | | '_ \  / _` | / __| / __|
+  \ V  V /   | | | | | | | | | |     | |   |  __/  | |  | |   | |_) | | |_| | | |_) || (_| | \__ \ \__ \
+   \_/\_/    |_| |_| |_| |_| |_|     |_|   |_|     |_|  |_|   |____/   \__, | | .__/  \__,_| |___/ |___/
+                                                                       |___/  |_|                       
+#>
 
-# __        __  _           _   _     _____   ____    __  __     ____                                     
-# \ \      / / (_)  _ __   / | / |   |_   _| |  _ \  |  \/  |   | __ )   _   _   _ __    __ _   ___   ___ 
-#  \ \ /\ / /  | | | '_ \  | | | |     | |   | |_) | | |\/| |   |  _ \  | | | | | '_ \  / _` | / __| / __|
-#   \ V  V /   | | | | | | | | | |     | |   |  __/  | |  | |   | |_) | | |_| | | |_) || (_| | \__ \ \__ \
-#    \_/\_/    |_| |_| |_| |_| |_|     |_|   |_|     |_|  |_|   |____/   \__, | | .__/  \__,_| |___/ |___/
-#                                                                        |___/  |_|                       
+<# 
+This script/project was made possible by the following software and projects:
+
+- AveYo's Skip_TPM_Check_on_Dynamic_Update.cmd script (https://github.com/AveYo/MediaCreationTool.bat/blob/main/bypass11/Skip_TPM_Check_on_Dynamic_Update.cmd)
+- 7-Zip (https://www.7-zip.org)
+#>
 
 [CmdletBinding(DefaultParametersetName='Main')] 
 param
@@ -63,11 +71,19 @@ param
     [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
     [switch]
-    $SkipReg = $false
+    $SkipReg = $false,
+
+    [Parameter(ParameterSetName='Extra')]
+    [Parameter(ParameterSetName="Main")]
+    [switch]
+    $UseNewPatch = $false
 )
 
 process
 {
+    $version = 1.3
+    $version_s = "$version"
+
     # The first thing we should do is check if this script is running on anything but Windows, and terminate with a message if that's the case.
     if($IsWindows -eq $false) { Write-Host "This script will only work on Windows systems." -ForegroundColor Red ; Exit }
 
@@ -130,7 +146,11 @@ process
     $sb_bypass_keyname = "win11-tpm-sb-bypass"
     $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
     $PostSetupScriptsPath = "Windows\Setup\Scripts"
+
+    # Do not use
     $PostPatchCMDFilename = "SkipTPM.cmd"
+
+    $SkipTPMCheckOnDynamicUpdate_Filename = "Skip_TPM_Check_on_Dynamic_Update.cmd"
     $PostPatchPS1Filename = "SkipTPM.ps1"
     $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
     $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
@@ -219,6 +239,27 @@ process
         }
     }
 
+    Function AskQuestion {
+        param (
+            $question
+        )
+
+        $inputF = Read-Host -Prompt "$question [y/n]"
+        if(($inputF -ne "y") -and ($inputF -ne "n"))
+        {
+            Write-Host "Invalid input: $inputF" -ForegroundColor Red
+            return AskQuestion $question $defaultAnswer
+        }
+        else
+        {
+            if($inputF -eq "n")
+            {
+                return $false
+            }
+        }
+        return $true
+    }
+
     # Check to see if the destination image exists before continuing.
     Function Alert_DestinationImageAlreadyExists {
         $inputF = Read-Host -Prompt "The destination image already exists. Do you want to overwrite it? [y/n]"
@@ -273,16 +314,17 @@ process
         # Start-Sleep 1
     }
 
+    
+    # Create the directory structure that will be replicated on the installation images
     Function GeneratePostSetupFileStructure {
-        # Create the directory structure that will be replicated on the installation images
         MakeDirectory $Temp_PostSetupOperations
         MakeDirectory $Temp_PostSetupOperations_ScriptDirectory
         
         # Generate SetupComplete.cmd file
         $SetupCompleteCMD = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath "SetupComplete.cmd"
 
-        if($InjectVMwareTools) { 
-            # Add commands to SetupComplete.cmd file to make the VMware Tools installer run on first boot
+        if ($InjectVMwareTools) { 
+            # Add commands to SetupComplete.cmd file to make the VMware Tools installer run durig the post-setup process
 
             $VMwareInstall = 
 @"
@@ -293,20 +335,26 @@ rmdir C:\$VMwareTempFolderName /s /q
             
             # Make our temporary directory for VMware Tools
             MakeDirectory $VMwareToolsScratchDir # C:/Scratch/PostSetup/vmware
+
             # Extract the VMware Tools ISO to that directory
             & $7ZipExecutable x $VMwareToolsISOPath ("-o" + ($VMwareToolsScratchDir)) | Out-Null
         }
-        if($InjectPostPatch) { $PatchInject =
+
+        if ($InjectPostPatch) { $PatchInject =
 @"
 :: cmd /c start /wait C:\$PostSetupScriptsPath\$PostPatchCMDFilename
 powershell.exe -executionpolicy Bypass -file "C:\$PostSetupScriptsPath\$PostPatchPS1Filename"
 "@ }
+
 
         # Finally, combine all of the SetupComplete commands into a single string to be written to the file.
         $SetupCompleteCMDContents = 
 @"
 $PatchInject
 $VMwareInstall
+:: Registry patches
+reg add HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache
+reg add HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache\SV2 /v 0 /t REG_DWORD /d 0 /f
 rmdir C:\Windows\Setup\Scripts /s /q
 "@
 
@@ -315,17 +363,7 @@ rmdir C:\Windows\Setup\Scripts /s /q
         $stream.Write(($SetupCompleteCMDContents -join "`r`n"))
         $stream.close()
 
-        if($InjectPostPatch) {
-            # Old
-#             $PS1_Contents_v1 = @'
-# $N = 'Skip TPM Check on Dynamic Update'
-# $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-# $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
-# $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
-# $0 = New-Item $K
-# Set-ItemProperty $K Debugger $C -force
-# $0 = Set-ItemProperty HKLM:\SYSTEM\Setup\MoSetup 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
-# '@
+        if ($InjectPostPatch) {
 
 #             $PS1_Contents_v2 = @'
 # $N = 'Skip TPM Check on Dynamic Update'
@@ -337,29 +375,70 @@ rmdir C:\Windows\Setup\Scripts /s /q
 # Set-ItemProperty $K 'Debugger' $C -force
 # '@
 
-            $PS1_Contents_v4 = @'
+#             $PS1_Contents_v4 = @'
+# $N = "Skip TPM Check on Dynamic Update"; $X = @("' $N (c) AveYo 2021 : v4 IFEO-based with no flashing cmd window") 
+# $X+= 'C = "cmd /q AveYo /d/x/r pushd %systemdrive%\\$windows.~bt\\Sources\\Panther && mkdir Appraiser_Data.ini\\AveYo&"'
+# $X+= 'M = "pushd %allusersprofile%& ren vd.exe vdsldr.exe &robocopy ""%systemroot%/system32/"" ""./"" ""vdsldr.exe""&"'
+# $X+= 'D = "ren vdsldr.exe vd.exe& start vd.exe -Embedding" : CreateObject("WScript.Shell").Run C & M & D, 0, False'    
+# $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+# $P = [Environment]::GetFolderPath('CommonApplicationData'); $F = join-path $P '11tpm.vbs'; $V = "wscript $F //B //T:5"
+# new-item $K -force -ea 0 >''; set-itemproperty $K 'Debugger' $V -force -ea 0; [io.file]::WriteAllText($F, $X-join"`r`n")
+# rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -rec -force -ea 0
+# '@
+
+            $PS1_Contents_v5 = @'
 $N = "Skip TPM Check on Dynamic Update"; $X = @("' $N (c) AveYo 2021 : v4 IFEO-based with no flashing cmd window") 
 $X+= 'C = "cmd /q AveYo /d/x/r pushd %systemdrive%\\$windows.~bt\\Sources\\Panther && mkdir Appraiser_Data.ini\\AveYo&"'
 $X+= 'M = "pushd %allusersprofile%& ren vd.exe vdsldr.exe &robocopy ""%systemroot%/system32/"" ""./"" ""vdsldr.exe""&"'
 $X+= 'D = "ren vdsldr.exe vd.exe& start vd.exe -Embedding" : CreateObject("WScript.Shell").Run C & M & D, 0, False'    
 $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-$P = [Environment]::GetFolderPath('CommonApplicationData'); $F = join-path $P '11tpm.vbs'; $V = "wscript $F //B //T:5"
-new-item $K -force -ea 0 >''; set-itemproperty $K 'Debugger' $V -force -ea 0; [io.file]::WriteAllText($F, $X-join"`r`n")
-rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -rec -force -ea 0
+$P = [Environment]::GetFolderPath('CommonApplicationData'); $F = join-path $P '11tpm.vbs'; $V = "wscript $F //B //T:5" 
+if (test-path $K) {
+  remove-item $K -force -ea 0 >''; del $F -force -ea 0; del (join-path $P 'vd.exe') -force -ea 0
+  write-host -fore 0xf -back 0xd "`n $N v4 [REMOVED] run again to install "
+} else {
+  new-item $K -force -ea 0 >''; set-itemproperty $K 'Debugger' $V -force -ea 0; [io.file]::WriteAllText($F, $X-join"`r`n")
+  write-host -fore 0xf -back 0x2 "`n $N v4 [INSTALLED] run again to remove "
+} ;  rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -rec -force -ea 0; timeout /t 5
 '@
 
-            $PS1_Contents = $PS1_Contents_v4
+# ---------------------------------------------------------------------------------------
+# Generate the script
+# ---------------------------------------------------------------------------------------
 
-            $scrFilepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchCMDFilename
-            [byte[]]$E_BYTES = [convert]::FromBase64String($POST_PATCH_CMD_FILE_B64)
-            [System.IO.File]::WriteAllBytes($scrFilepath, $E_BYTES)
+            $PS1_Fallback = $PS1_Contents_v5
+            $PS1ScriptContents = ""
+
+            if ($UseNewPatch) {
+                try {
+                    # Get CMD contents from online file: https://github.com/AveYo/MediaCreationTool.bat/raw/main/bypass11/Skip_TPM_Check_on_Dynamic_Update.cmd
+                    $CMD_Contents = [System.Net.WebClient]::DownloadString('https://raw.githubusercontent.com/AveYo/MediaCreationTool.bat/main/bypass11/Skip_TPM_Check_on_Dynamic_Update.cmd')
+
+                    # Create a new cmd file in scratch directory, and write the contents to it.
+                    $cmdFilepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $SkipTPMCheckOnDynamicUpdate_Filename
+                    [System.IO.File]::WriteAllText($cmdFilepath, $CMD_Contents)
+
+                    # Set the contents of the PS1 script to execute the cmd file, which will be in the same directory.
+                    $PS1ScriptContents = "Invoke-Item -Path $SkipTPMCheckOnDynamicUpdate_Filename"
+                    
+                }
+                catch {
+                    $PS1ScriptContents = ($PS1_Fallback -join "`r`n")
+                }
+            }
+            else {
+                $PS1ScriptContents = ($PS1_Fallback -join "`r`n")
+            }
+
             $ps1Filepath = Join-Path -Path $Temp_PostSetupOperations_ScriptDirectory -ChildPath $PostPatchPS1Filename
-            $stream = [System.IO.StreamWriter] $ps1Filepath
-            $stream.Write(($PS1_Contents -join "`r`n"))
-            $stream.close()
+            [System.IO.File]::WriteAllText($ps1Filepath, $PS1ScriptContents)
         }
     }
 
+    <#
+    .DESCRIPTION
+    Shortcut method for function InjectExtraPatches that copies the generated patch folder and files to the specified mounted image.
+    #>
     Function CopyPostSetupFiles ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
         $StartTime = $(get-date)
 
@@ -373,6 +452,10 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
         PrintTimespan "Modifying edition index $WIMIndex took " $elapsedTime
     }
 
+    <#
+    .DESCRIPTION
+    InjectExtraPatches injects patches into the install.wim image as per the user's request. If the image contains more than one edition, the user will be asked if they want to modify one or all. Some of these patches include VMware Tools, and patches that allow future in-place upgrades.
+    #>
     Function InjectExtraPatches {
         AnnounceProgress_RunningExtraTasks
         Write-Host "Preparing to modify install.wim..."
@@ -384,7 +467,8 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
         Write-Host "Getting install.wim info..."
         $WIMEditions = Get-WindowsImage -ImagePath $InstallWIMFilePath
 
-        if($WIMEditions.Count -gt 1) {
+        # If there is more than one edition in the install.wim image, ask the user which edition(s) they want to modify
+        if ($WIMEditions.Count -gt 1) {
             # install.wim has more than one edition. Give the user the option to select editions to modify.
 	    
 	        # Create an empty list
@@ -401,10 +485,11 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
             # Ask user to select what editions to modify
             $ModifyAll = $false
 
+            # Get number of editions
             $WIMEditionsCount = 1..$WIMEditions.Count
             $options = New-Object System.Collections.Generic.HashSet[int]
 
-            if($GuiSelectMode) {
+            if ($GuiSelectMode) {
                 $selected = $EditionList | Out-GridView -Title "Select editions to modify. Leave none selected to modify all." -OutputMode Multiple
 
                 if($selected.Count -eq 0) {
@@ -452,7 +537,7 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
                     }
                 } while ($userInput -ne "")
 
-                if($options.Count -eq 0) {
+                if ($options.Count -eq 0) {
                     #Write-Host "Modifying all..."
                     $ModifyAll = $true
                 }
@@ -484,7 +569,7 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
             # Get current time
             $TotalStartTime = $(get-date)
 
-            if($ModifyAll) {
+            if ($ModifyAll) {
                 Write-Host "Processing all"
                 foreach ($edition in $WIMEditions) {
                     $PercentageComplete = GetPercentageFromRange $edition.ImageIndex 0 $WIMEditions.Count
@@ -540,6 +625,7 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
     #     
     # }
 
+    
     Function CleanWIM ([string] $WIMFilePath, $KeepEditions) {
         $OLD = $WIMFilePath + ".old"
         Move-Item $WIMFilePath $OLD -Force
@@ -550,10 +636,11 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
         Remove-Item $OLD -Force
     }
 
+    # Quick verbose function that checks whether a file exists or not.
     Function CheckExists ($FilePath, $ItemName, $Description) {
         Write-Host "Checking if $ItemName exists..." -ForegroundColor Yellow -NoNewline
         $file_exists = Test-Path $FilePath
-        if(!$file_exists)
+        if (!$file_exists)
         {
             Write-Host " no" -ForegroundColor Red
             Write-Host "$($ItemName): $Description does not exist" -ForegroundColor Red
@@ -564,24 +651,31 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
         }
     }
 
+    # Make changes to the local system to allow in-place upgrades.
     Function PrepareSystemForUpgrade {
         if ($PrepareUpgrade) {
-            if($Is64BitSystem) {
-                Write-Host "Preparing system for upgrade..." -ForegroundColor Yellow -NoNewline
-                
-                $N = "Skip TPM Check on Dynamic Update"; $X = @("' $N (c) AveYo 2021 : v4 IFEO-based with no flashing cmd window") 
-                $X+= 'C = "cmd /q AveYo /d/x/r pushd %systemdrive%\\$windows.~bt\\Sources\\Panther && mkdir Appraiser_Data.ini\\AveYo&"'
-                $X+= 'M = "pushd %allusersprofile%& ren vd.exe vdsldr.exe &robocopy ""%systemroot%/system32/"" ""./"" ""vdsldr.exe""&"'
-                $X+= 'D = "ren vdsldr.exe vd.exe& start vd.exe -Embedding" : CreateObject("WScript.Shell").Run C & M & D, 0, False'    
-                $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-                $P = [Environment]::GetFolderPath('CommonApplicationData'); $F = join-path $P '11tpm.vbs'; $V = "wscript $F //B //T:5"
-                New-Item $K -force -ea 0 >''; set-itemproperty $K 'Debugger' $V -force -ea 0; [io.file]::WriteAllText($F, $X-join"`r`n")
-                Remove-Item $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -rec -force -ea 0
+            if ($Is64BitSystem) {
+                Write-Host "Preparing system for in-place upgrades..." -ForegroundColor Yellow -NoNewline
 
-                Write-Host " done" -ForegroundColor Green
-                Write-Host "System patched." -ForegroundColor Green
-                # Write-Host "You can now try upgrading, but you may need to reboot your system for the changes to take effect."
-                # Write-Host "You can now mount the new Windows 11 ISO, and run setup.exe. However, you may need to reboot your system for the changes to take effect."
+                Write-Host "WARNING: This operation has not yet been updated for newer Windows builds." -ForegroundColor Yellow -NoNewline
+                if (AskQuestion "Are you sure you want to continue?")
+                {
+                    $N = "Skip TPM Check on Dynamic Update"; $X = @("' $N (c) AveYo 2021 : v4 IFEO-based with no flashing cmd window") 
+                    $X+= 'C = "cmd /q AveYo /d/x/r pushd %systemdrive%\\$windows.~bt\\Sources\\Panther && mkdir Appraiser_Data.ini\\AveYo&"'
+                    $X+= 'M = "pushd %allusersprofile%& ren vd.exe vdsldr.exe &robocopy ""%systemroot%/system32/"" ""./"" ""vdsldr.exe""&"'
+                    $X+= 'D = "ren vdsldr.exe vd.exe& start vd.exe -Embedding" : CreateObject("WScript.Shell").Run C & M & D, 0, False'    
+                    $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
+                    $P = [Environment]::GetFolderPath('CommonApplicationData'); $F = join-path $P '11tpm.vbs'; $V = "wscript $F //B //T:5"
+                    New-Item $K -force -ea 0 >''; set-itemproperty $K 'Debugger' $V -force -ea 0; [io.file]::WriteAllText($F, $X-join"`r`n")
+                    Remove-Item $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -rec -force -ea 0
+
+                    Write-Host " done" -ForegroundColor Green
+                    Write-Host "System patched." -ForegroundColor Green
+                    # Write-Host "You can now try upgrading, but you may need to reboot your system for the changes to take effect."
+                }
+                else {
+                    Write-Host "Exiting..." -ForegroundColor Red
+                }
             } else {
                 Write-Host $32Bit_System_Error_Message -ForegroundColor Red
             }
@@ -589,7 +683,7 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
     }
 
     Function Undo_PrepareSystemForUpgrade {
-        if($Is64BitSystem) {
+        if ($Is64BitSystem) {
             Write-Host "Operation: Undo changes made by -PrepareUpgrade" -NoNewline
             Write-Host "Undoing system changes..." -NoNewline
 
@@ -635,6 +729,7 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
 # |______\_/ \___|_|   \__, |\__|_| |_|_|_| |_|\__, |  |____/ \___|\__, |_|_| |_|___/  |_|  |_|\___|_|  \___|
 #                       __/ |                   __/ |               __/ |                                    
 #                      |___/                   |___/               |___/                                     
+#
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -642,7 +737,7 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Write-Host "Windows 11 Compatibility Check Bypass Tool v1.2"
+    Write-Host "Windows 11 Compatibility Check Bypass Tool $version_s"
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
 
     Write-Host "Checking for administrative privileges..."
@@ -681,11 +776,11 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
         Exit
     }
     
-    Set-Location -Path $ScriptDir # In case we aren't there already. It's a good idea for the PowerShell instance to be in the same directory as the commands we will be referencing.
+    Set-Location -Path $ScriptDir # In case we aren't at the repository directory already. It's a good idea for the PowerShell instance to be in the same directory as the commands and files we will be referencing.
     
     Write-Host "Getting required information..." -ForegroundColor Yellow
 
-    if(Test-Path $Destination)
+    if (Test-Path $Destination)
     {
         Alert_DestinationImageAlreadyExists
     }
@@ -700,11 +795,11 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
 
     # Check for evidence that the image was previously modified. If there is any, give the user the option to either continue or stop.
     & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
-    if(Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
+    if (Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
     {
         Write-Host "Looks like this ISO has already been modified by this tool. Continuing with it is not recommended as it may have undesirable results."
         Alert_ImageModified
-    }    
+    }
     Write-Progress -Activity "$ActivityName" -Status "Extracting image" -PercentComplete 0
     # Extract ISO contents to scratch directory
     & $7ZipExecutable x $Source ("-o" + $Win11ScratchDir) | Out-Null
@@ -713,38 +808,56 @@ rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -
     # Make directory to mount WIM images to
     MakeDirectory -Path $WIMScratchDir
 
-    if(-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
+    if (-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
     {
+        # Get the current time
         $StartTime = $(get-date)
+
         # Mount boot.wim for editing
         Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
+
         # Add the registry keys
         InjectRegistryKeys
+
         # Unmount WIM; save changes
         Write-Progress -Activity $ActivityName -Status "Dismounting boot.wim; saving changes..." -PercentComplete 60
         Dismount-WindowsImage -Path $WIMScratchDir -Save
 
         # Print time elapsed
         $elapsedTime = $(get-date) - $StartTime
-        # Write-Host "boot.wim patched. Took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
         PrintTimespan "boot.wim patched. Took " $elapsedTime
     }
 
-    # Check if we need to modify install.wim, and act accordingly
-    if($InjectVMwareTools -or $InjectPostPatch) {
+    # Check if the user asked to modify install.wim
+    if ($InjectVMwareTools -or $InjectPostPatch) {
+        # Start the InjectExtraPatches routine
         InjectExtraPatches
     }
 
     # "Leave our mark" 
-    # In other words, modify the contents of the final image in some sort of way to make it easily identifiable if a given ISO has already been modified by this tool.
+    # In other words, modify the contents of the final image in some sort of way to make it easily identifiable if a given ISO has already been modified by this tool. That way, we can warn the user if they try to use the same image again.
     # In this case, let's copy the registry keys we used to the "sources" directory under the name defined in $sb_bypass_key
     [byte[]]$REGKEY_BYTES = [convert]::FromBase64String($REGISTRY_KEY_FILE_B64)
     [System.IO.File]::WriteAllBytes($sb_bypass_key, $REGKEY_BYTES)
 
-    # Start creating the ISO image using OSCDIMG tool
+    ## Start creating the ISO image using OSCDIMG
+
+    # Get the current time
+    $StartTime = $(get-date)
+
+    # Update the status
     Write-Progress -Activity $ActivityName -Status "Creating ISO" -PercentComplete 95
+
+    # We need to provide arguments for OSCDIMG so that it generates our new installation image, and does it correctly
+    # For more information, visit https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/oscdimg-command-line-options
     $OSCDIMG_ARGS = "-m -o -u2 -udfver102 -bootdata:2#p0,e,b$Win11ScratchDir\boot\etfsboot.com#pEF,e,b$Win11ScratchDir\efi\microsoft\boot\efisys.bin $Win11ScratchDir ""$Destination"""
+
+    # Run OSCDIMG with the arguments we've built
     Start-Process -FilePath $oscdimgExecutable -WorkingDirectory $ScriptDir -ArgumentList $OSCDIMG_ARGS -Wait -WindowStyle $DefaultWindowStyle
+    
+    # Print time elapsed (ISO creation)
+    $elapsedTime = $(get-date) - $StartTime    
+    PrintTimespan "OSCDIMG finished. Took " $elapsedTime
     
     # Delete any leftovers
     Write-Progress -Activity $ActivityName -Status "Cleaning up" -PercentComplete 100
