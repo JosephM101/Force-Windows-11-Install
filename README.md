@@ -87,3 +87,10 @@ Win11-ImageBuilder has been marked obsolete, and is no longer maintained. For th
 
 ## Background
 Following the announcement of Windows 11, many users were rather discouraged to discover the new TPM, CPU and Secure Boot restrictions imposed by Microsoft for Windows 11 in an attempt to block devices lacking these features from installing and running it. This has left a lot of otherwise enthusiastic users in the dark, with virtually no way to upgrade without buying a new machine sporting a CPU newer than 2018, as well as the aforementioned features. However, it's been proven time and time again that on many devices considered unsupported, the Windows 11 experience was comparatively normal, and in some cases it performed better than Windows 10. Microsoft claims that their reasons for enforcing these restrictions have to do with both compatibility and security. They claimed that many of the older devices they tested Windows 11 on tended to have issues resulting in Blue Screen of Death errors. However, many people running Windows 11 on these so-called incompatible devices didn’t report any major issues at the time of writing. While it’s not exactly recommended to run Windows 11 on an incompatible device (especially if it’s a daily driver), it certainly is possible to bypass Microsoft’s restrictions and allow installing or upgrading to Windows 11.
+
+
+## Included binaries
+ | Binary name | Description | Source
+ | ---         | ---       | ---         |
+ | 7z.exe      | 7-Zip CLI interface     | [Source](https://www.7-zip.org/) |
+ | oscdimg.exe | OSCDIMG - Used for rebuilding ISO images after processing (Pulled from the Windows 10 ADK) | [Source](https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install) |
