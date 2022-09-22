@@ -1,5 +1,13 @@
 # Force-Windows-11-Install
 
+## *Notice of Update*:
+After having archived this repository a few months ago, I've decided that maybe I should give this project a second chance. I have some plans that will hopefully further optimize the tool and make it significantly faster, and will allow for adding extra features in an easier way in the future. The secret? Using the "AutoUnattend" method. Now, this will require ***quite*** a bit of work to do, so don't expect anything for a while, but once the update is released, the old method (Win11-TPM-RegistryBypass) will be marked as deprecated.
+
+It might take a bit longer than I'd like since I'm still a student in high school, but I will try to do what I can. Thank you for understanding.
+
+
+
+
 ## Win11-TPM-RegistryBypass
 This tool creates a modified Windows 11 installer ISO using an existing one, containing a registry hack that bypasses the setup-time compatibility checks, as well as an experimental patch that forces feature updates and in-place upgrades to install, ignoring incompatibilities.
 
@@ -19,7 +27,7 @@ Windows 11 is a 64-bit-only OS, and therefore will not work at all on older arch
 ------
 
 ### How it works:
-This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that force the installer to skip TPM, Secure Boot, memory and CPU checks, allowing the user to install Windows 11 using the original installer. There are extra switches that can be passed for more in-depth patching, such as one that allows for forcing Windows Updates and in-place upgrades to skip compatibility checks; see [extra switches](#extra-switches) for more. 
+This workaround injects three keys into the registry of the Windows Setup environment in the boot.wim file in the Windows 11 ISO that force the installer to skip TPM, Secure Boot, memory and CPU checks, allowing the user to install Windows 11 using the original installer. There are extra switches that can be passed for more in-depth patching, such as one that allows for forcing Windows Updates and in-place upgrades to skip compatibility checks; see [extra switches](#extra-switches) for more.
 
 A Windows 10 ISO is not required for this method.
 
@@ -60,16 +68,16 @@ Your final command should look something like this:
 - `-GuiSelectMode` - Shows a GUI for selecting multiple editions to modify as opposed to the CLI-based selection method
 - `-HideTimestamps` - Disable printing the amount of time it took to complete a process
 
-### Prepare Upgrade feature
+### Prepare Upgrade feature (required for in-place upgrades on unsupported systems)
 
 ***`.\Win11-TPM-RegBypass.ps1 -PrepareUpgrade` will only modify the current Windows installation.***
 
-***`.\Win11-TPM-RegBypass.ps1 -Source [source] -Destination [destination] <Other parameters> -PrepareUpgrade` will perform modifications after the ISO is generated (required for in-place upgrades).***
+***`.\Win11-TPM-RegBypass.ps1 -Source [source] -Destination [destination] <Other parameters> -PrepareUpgrade` is a one-liner that will perform modifications to the current Windows installation after generating the ISO.***
 
 --------
 
 # Set-WindowsInsiderRing.ps1
- Forcibly change the Windows Insider ring (and enable Windows Insider if it is disabled)
+ Forcibly change the Windows Insider ring (and enable Windows Insider if it is disabled). ***The script needs to be run as an administrator.***
 
 ### Options
 - `-Dev` - Set ring to Dev
@@ -86,7 +94,7 @@ Win11-ImageBuilder has been marked obsolete, and is no longer maintained. For th
 --------
 
 ## Background
-Following the announcement of Windows 11, many users were rather discouraged to discover the new TPM, CPU and Secure Boot restrictions imposed by Microsoft for Windows 11 in an attempt to block devices lacking these features from installing and running it. This has left a lot of otherwise enthusiastic users in the dark, with virtually no way to upgrade without buying a new machine sporting a CPU newer than 2018, as well as the aforementioned features. However, it's been proven time and time again that on many devices considered unsupported, the Windows 11 experience was comparatively normal, and in some cases it performed better than Windows 10. Microsoft claims that their reasons for enforcing these restrictions have to do with both compatibility and security. They claimed that many of the older devices they tested Windows 11 on tended to have issues resulting in Blue Screen of Death errors. However, many people running Windows 11 on these so-called incompatible devices didn’t report any major issues at the time of writing. While it’s not exactly recommended to run Windows 11 on an incompatible device (especially if it’s a daily driver), it certainly is possible to bypass Microsoft’s restrictions and allow installing or upgrading to Windows 11.
+Following the announcement of Windows 11, many users were rather discouraged to discover the new TPM, CPU and Secure Boot restrictions imposed by Microsoft for Windows 11 in an attempt to block devices lacking these features from installing and running it, and encouraging them to buy newer, and possibly more locked-down/restrictive devices. This has left a lot of otherwise enthusiastic users in the dark, with virtually no way to upgrade without buying a new machine sporting a CPU newer than 2018, as well as the aforementioned features. However, it's been proven time and time again that on many devices that Microsoft considers unsupported, the Windows 11 experience was comparatively normal, with few to no issues. Microsoft claims that their reasons for enforcing these restrictions have to do with both compatibility and security. Additionally, they claim that many of the older devices that Windows 11 was tested on tended to have issues resulting in BSoD (Blue Screen of Death) errors, and other instabilities and issues. However, many people running Windows 11 on these so-called incompatible devices didn’t report any major issues at the time of writing despite some missing features such as virtualization. While it’s not exactly recommended to run Windows 11 on an incompatible device (especially if it’s a daily driver), it certainly is possible to bypass Microsoft’s restrictions to allow installing or upgrading to Windows 11.
 
 
 ## Included binaries
