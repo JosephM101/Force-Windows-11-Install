@@ -138,7 +138,8 @@ process
     $BootWimImageIndex = 2
     
     $sb_bypass_keyname = "win11-tpm-sb-bypass"
-    $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
+    # $sb_bypass_key = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
+    $sb_mark = Join-Path -Path $Win11ScratchDir -ChildPath ("\sources\" + $sb_bypass_keyname)
     $PostSetupScriptsPath = "Windows\Setup\Scripts"
 
     # Do not use
@@ -788,7 +789,7 @@ if (test-path $K) {
     MakeDirectory -Path $ScratchDir
 
     # Check for evidence that the image was previously modified. If there is any, give the user the option to either continue or stop.
-    & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_bypass_keyname -r | Out-Null
+    & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_mark -r | Out-Null
     if (Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
     {
         Write-Host "Looks like this ISO has already been modified by this tool. Continuing with it is not recommended as it may have undesirable results."
@@ -830,9 +831,8 @@ if (test-path $K) {
 
     # "Leave our mark" 
     # In other words, modify the contents of the final image in some sort of way to make it easily identifiable if a given ISO has already been modified by this tool. That way, we can warn the user if they try to use the same image again.
-    # In this case, let's copy the registry keys we used to the "sources" directory under the name defined in $sb_bypass_key
-    [byte[]]$REGKEY_BYTES = [convert]::FromBase64String($REGISTRY_KEY_FILE_B64)
-    [System.IO.File]::WriteAllBytes($sb_bypass_key, $REGKEY_BYTES)
+    $CONTENT = "force-windows-11-install"
+    [System.IO.File]::WriteAllBytes($sb_mark, $CONTENT)
 
     ## Start creating the ISO image using OSCDIMG
 
