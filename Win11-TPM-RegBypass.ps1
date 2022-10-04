@@ -832,7 +832,9 @@ if (test-path $K) {
     # "Leave our mark" 
     # In other words, modify the contents of the final image in some sort of way to make it easily identifiable if a given ISO has already been modified by this tool. That way, we can warn the user if they try to use the same image again.
     $CONTENT = "force-windows-11-install"
-    [System.IO.File]::WriteAllBytes($sb_mark, $CONTENT)
+
+    # THE LINE BELOW WAS COMMENTED OUT BECAUSE OF A BUG. It is not a mission-critical line.
+    # [System.IO.File]::WriteAllBytes($sb_mark, $CONTENT)
 
     ## Start creating the ISO image using OSCDIMG
 
