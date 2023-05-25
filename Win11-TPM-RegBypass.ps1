@@ -76,7 +76,7 @@ param
 
 process
 {
-    $version = 1.3
+    $version = 1.4
     $version_s = "$version"
 
     # The first thing we should do is check if this script is running on anything but Windows, and terminate with a message if that's the case.
