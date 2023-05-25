@@ -119,7 +119,6 @@ process
     # }
 
     # Declarations
-    
     $Is64BitSystem = [Environment]::Is64BitOperatingSystem
 
     $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
@@ -128,11 +127,15 @@ process
     $oscdimgExecutable = ".\oscdimg\oscdimg"
     $oscdimgExecutableFull = Join-Path -Path $ScriptDir -ChildPath "oscdimg\oscdimg.exe"
     $ScratchDir = "C:\Scratch"
-    $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WIM"
-    $Win11ScratchDir = Join-Path -Path $ScratchDir -ChildPath "W-ISO"
+    $WIMScratchDir = Join-Path -Path $ScratchDir -ChildPath "WimMount"
+    $Win11ScratchDir = Join-Path -Path $ScratchDir -ChildPath "IsoRoot"
     $BootWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\boot.wim"
-    $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
-    $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
+    # $InstallWIMFilePath = Join-Path -Path $Win11ScratchDir -ChildPath "sources\install.wim"
+    # $InstallWIMMountPath = Join-Path -Path $ScratchDir -ChildPath "INSTALL_WIM"
+
+    $OEMFolder = Join-Path -Path $Win11ScratchDir -ChildPath "sources\`$OEM`$"
+    $OEMFolder_DriveRoot = Join-Path -Path $OEMFolder -ChildPath "`$1"
+    $OEMFolder_Windows = Join-Path -Path $OEMFolder -ChildPath "`$`$"
 
     # Installation part of boot.wim is located at WIM index 2.
     $BootWimImageIndex = 2
@@ -149,10 +152,13 @@ process
     $PostPatchPS1Filename = "SkipTPM.ps1"
     $Temp_PostSetupOperations = Join-Path -Path $ScratchDir -ChildPath "PostSetup"
     $Temp_PostSetupOperations_ScriptDirectory = Join-Path -Path $Temp_PostSetupOperations -ChildPath $PostSetupScriptsPath
+
+    # VMware Tools
     $VMwareTempFolderName = "vmwaretools"
     $VMwareToolsScratchDir = Join-Path -Path $Temp_PostSetupOperations -ChildPath "vmwaretools"
     #$MountDir_Setup = Join-Path -Path $VMwareToolsScratchDir -ChildPath $PostSetupScriptsPath
     $VMwareToolsISOPath = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "VMware\VMware Workstation\windows.iso"
+
     $32Bit_System_Error_Message = "ERROR: This device does not support Windows 11, as it is a 32-bit device. Windows 11 will only run on 64-bit devices."
 
     $PostPatch_WMISubscriptionName = 'Skip TPM Check on Dynamic Update'
@@ -359,28 +365,6 @@ rmdir C:\Windows\Setup\Scripts /s /q
         $stream.close()
 
         if ($InjectPostPatch) {
-
-#             $PS1_Contents_v2 = @'
-# $N = 'Skip TPM Check on Dynamic Update'
-# $0 = Set-ItemProperty 'HKLM:\SYSTEM\Setup\MoSetup' 'AllowUpgradesWithUnsupportedTPMOrCPU' 1 -type dword -force -ea 0
-# $C = "cmd /q $N /d/x/r>nul (erase /f/s/q %systemdrive%\`$windows.~bt\appraiserres.dll"
-# $C+= '&md 11&cd 11&ren vd.exe vdsldr.exe&robocopy "../" "./" "vdsldr.exe"&ren vdsldr.exe vd.exe&start vd -Embedding)&rem;'
-# $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-# $0 = New-Item $K -force -ea 0
-# Set-ItemProperty $K 'Debugger' $C -force
-# '@
-
-#             $PS1_Contents_v4 = @'
-# $N = "Skip TPM Check on Dynamic Update"; $X = @("' $N (c) AveYo 2021 : v4 IFEO-based with no flashing cmd window") 
-# $X+= 'C = "cmd /q AveYo /d/x/r pushd %systemdrive%\\$windows.~bt\\Sources\\Panther && mkdir Appraiser_Data.ini\\AveYo&"'
-# $X+= 'M = "pushd %allusersprofile%& ren vd.exe vdsldr.exe &robocopy ""%systemroot%/system32/"" ""./"" ""vdsldr.exe""&"'
-# $X+= 'D = "ren vdsldr.exe vd.exe& start vd.exe -Embedding" : CreateObject("WScript.Shell").Run C & M & D, 0, False'    
-# $K = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\vdsldr.exe'
-# $P = [Environment]::GetFolderPath('CommonApplicationData'); $F = join-path $P '11tpm.vbs'; $V = "wscript $F //B //T:5"
-# new-item $K -force -ea 0 >''; set-itemproperty $K 'Debugger' $V -force -ea 0; [io.file]::WriteAllText($F, $X-join"`r`n")
-# rmdir $([Environment]::SystemDirectory[0]+':\\$Windows.~BT\\Sources\\Panther') -rec -force -ea 0
-# '@
-
             $PS1_Contents_v5 = @'
 $N = "Skip TPM Check on Dynamic Update"; $X = @("' $N (c) AveYo 2021 : v4 IFEO-based with no flashing cmd window") 
 $X+= 'C = "cmd /q AveYo /d/x/r pushd %systemdrive%\\$windows.~bt\\Sources\\Panther && mkdir Appraiser_Data.ini\\AveYo&"'
@@ -434,17 +418,15 @@ if (test-path $K) {
     .DESCRIPTION
     Shortcut method for function InjectExtraPatches that copies the generated patch folder and files to the specified mounted image.
     #>
-    Function CopyPostSetupFiles ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex) {
+    Function CopyPostSetupFiles () {
         $StartTime = $(get-date)
 
-        Mount-WindowsImage -ImagePath $WIMFilePath -Index $WIMIndex -Path $MountPath
         Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $MountPath -Recurse -Force
         Dismount-WindowsImage -Path $MountPath -Save
 
         # Print time elapsed
         $elapsedTime = $(get-date) - $StartTime
-        # Write-Host "Modifying edition index $WIMIndex took $(FormatTimespan $elapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
-        PrintTimespan "Modifying edition index $WIMIndex took " $elapsedTime
+        PrintTimespan "Copying files took " $elapsedTime
     }
 
     <#
@@ -453,154 +435,13 @@ if (test-path $K) {
     #>
     Function InjectExtraPatches {
         AnnounceProgress_RunningExtraTasks
-        Write-Host "Preparing to modify install.wim..."
-        MakeDirectory $InstallWIMMountPath # Make our mount directory for install.wim...
-
+        Write-Host "Creating `$OEM`$ folder..."
+        Write-Progress -Activity "Creating OEM folder..." -PercentComplete 0
+        MakeDirectory $OEMFolder
+        MakeDirectory $OEMFolder_DriveRoot
+        MakeDirectory $OEMFolder_Windows
         GeneratePostSetupFileStructure
-
-        # Get information and list of its editions from install.wim
-        Write-Host "Getting install.wim info..."
-        $WIMEditions = Get-WindowsImage -ImagePath $InstallWIMFilePath
-
-        # If there is more than one edition in the install.wim image, ask the user which edition(s) they want to modify
-        if ($WIMEditions.Count -gt 1) {
-            # install.wim has more than one edition. Give the user the option to select editions to modify.
-	    
-	        # Create an empty list
-	        $EditionList = @()
-	    
-            Write-Host "The install.wim image contains multiple editions. Select the editions you want to modify (editions not selected will be excluded from the new image)." -ForegroundColor Yellow
-            Write-Host ""
-	    
-            # Go through and log editions
-            foreach ($WIMedition in $WIMEditions) {
-                $EditionList += ($WIMedition.ImageIndex.ToString() + ": " + $WIMedition.ImageName)
-            }
-
-            # Ask user to select what editions to modify
-            $ModifyAll = $false
-
-            # Get number of editions
-            $WIMEditionsCount = 1..$WIMEditions.Count
-            $options = New-Object System.Collections.Generic.HashSet[int]
-
-            if ($GuiSelectMode) {
-                $selected = $EditionList | Out-GridView -Title "Select editions to modify. Leave none selected to modify all." -OutputMode Multiple
-
-                if($selected.Count -eq 0) {
-                    #Write-Host "Modifying all..."
-                    $ModifyAll = $true
-                } else {
-                    #Write-Host "Selected: $selected"
-                }
-
-                $Selection = foreach($item in $selected) {
-                    try {
-                        #[int]::Parse($item)
-			            ($EditionList.indexOf($item) + 1)
-                        #Write-Host $item
-                    }
-                    catch{}
-                }
-            } else {
-                # Print editions from $EditionList
-                $EditionList | ForEach-Object {"$PSItem"}
-
-                Write-Host "" # Write empty line
-                Write-Host "Enter a selection from 1 to $($WIMEditionsCount.Count), and press Enter to select that edition. When you're done, press Enter again to confirm your choices. If nothing is selected, all editions will be modified."
-                do {
-                    $userInput = Read-Host "($options)"
-                    if ($userInput -eq "") {
-                        continue
-                    }
-                    if ($userInput -notin $WIMEditionsCount) {
-                        Write-Host "Invalid value entered." -ForegroundColor Red
-                        continue
-                    }
-                    elseif ($userInput -in $options) {
-                        do {
-                            $inputF = Read-Host -Prompt "$userInput is already selected. Do you want to deselect it? [y/n]"
-                            } while ($userInput -notcontains $inputF)
-                        
-                        if($inputF -eq "y") {
-                            $options.Remove($userInput) | Out-Null
-                        }
-                        continue
-                    }
-                    else {
-                        $options.Add($userInput) | Out-Null
-                    }
-                } while ($userInput -ne "")
-
-                if ($options.Count -eq 0) {
-                    #Write-Host "Modifying all..."
-                    $ModifyAll = $true
-                }
-                else {
-                    Write-Host ""
-                    Write-Host "Options selected: $options"
-                }
-
-                $Selection = foreach($indexEntry in $options) {
-                    try {
-                        [int]::Parse($indexEntry)
-                        #Write-Host $indexEntry
-                    }
-                    catch{}
-                }
-            }
-
-            # Write-Host $Selection
-            # $Selection = foreach($indexEntry in ($Multi_Options -Split ",")) {
-
-            if(($Selection.Count -gt 1) -and ($Selection.Contains(0))) { # If individual editions were selected, check to see if a 0 exists, and remove it if the length of the list is larger than 1.
-                $Selection = $Selection | Where-Object { $_ -ne 0 }
-            }
-
-            $Selection = $Selection | Select-Object -uniq # Remove duplicates from the array; not really necessary considering that the above selection method prevents that. We'll just keep it here for good measure.
-
-            $Selection | ForEach-Object { $WIMEditions[$PSItem - 1].ImageName }
-
-            # Get current time
-            $TotalStartTime = $(get-date)
-
-            if ($ModifyAll) {
-                Write-Host "Processing all"
-                foreach ($edition in $WIMEditions) {
-                    $PercentageComplete = GetPercentageFromRange $edition.ImageIndex 0 $WIMEditions.Count
-                    Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $edition.ImageName + " (" + $edition.ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete $PercentageComplete
-                    CopyPostSetupFiles $InstallWIMFilePath $InstallWIMMountPath $edition.ImageIndex
-                }
-                CleanWIM $InstallWIMFilePath $SelectedIndex
-            }
-            else {
-                $EditionsToProcess = foreach ($edition in $WIMEditions) {
-                    if ($Selection -contains $edition.ImageIndex) {
-                        $edition
-                    }
-                }
-                $EditionsToProcess
-                Write-Host ""
-                $CurrentIndex = 0
-                foreach ($edition in $EditionsToProcess) {
-                    $CurrentIndex++
-                    $PercentageComplete = GetPercentageFromRange ($CurrentIndex - 1) 0 $EditionsToProcess.Count
-                    Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $edition.ImageName + " (" + $CurrentIndex.ToString() + "/" + $EditionsToProcess.Count.ToString() + ")") -PercentComplete $PercentageComplete
-                    CopyPostSetupFiles $InstallWIMFilePath $InstallWIMMountPath $edition.ImageIndex
-                    Start-Sleep 1
-                }
-                CleanWIM $InstallWIMFilePath $EditionsToProcess
-            }
-
-            # Print time elapsed
-            $TotalElapsedTime = $(get-date) - $TotalStartTime
-            # Write-Host "Done. Took $(FormatTimespan $TotalElapsedTime)" -ErrorAction SilentlyContinue -ForegroundColor Green
-            PrintTimespan "Process complete. Took " $TotalElapsedTime
-        }
-        else { # There's only one edition in the WIM file.
-            Write-Progress -Activity "Modifying install.wim" -Status ("Modifying " + $WIMEditions[0].ImageName + " (" + $WIMEditions[0].ImageIndex.ToString() + "/" + $WIMEditions.Count.ToString() + ")") -PercentComplete 0
-            CopyPostSetupFiles $InstallWIMFilePath $InstallWIMMountPath $WIMEditions[0].ImageIndex
-        }
+        Get-ChildItem $Temp_PostSetupOperations | Copy-Item -Destination $OEMFolder_DriveRoot -Recurse -Force
     }
 
     # Function Sub_InjectVMwareTools ([string] $WIMFilePath, [string] $MountPath, [uint32] $WIMIndex, [string] $VMwareToolsSource) {
@@ -621,15 +462,14 @@ if (test-path $K) {
     # }
 
     
-    Function CleanWIM ([string] $WIMFilePath, $KeepEditions) {
-        $OLD = $WIMFilePath + ".old"
-        Move-Item $WIMFilePath $OLD -Force
-        foreach ($edition in $KeepEditions)
-        {
-            Export-WindowsImage -SourceImagePath $OLD -SourceIndex $edition.ImageIndex -DestinationImagePath $WIMFilePath -CompressionType Max
-        }
-        Remove-Item $OLD -Force
-    }
+    # Function CleanWIM ([string] $WIMFilePath, $KeepEditions) {
+    #     $OLD = $WIMFilePath + ".old"
+    #     Move-Item $WIMFilePath $OLD -Force
+    #     foreach ($edition in $KeepEditions) {
+    #         Export-WindowsImage -SourceImagePath $OLD -SourceIndex $edition.ImageIndex -DestinationImagePath $WIMFilePath -CompressionType Max
+    #     }
+    #     Remove-Item $OLD -Force
+    # }
 
     # Quick verbose function that checks whether a file exists or not.
     Function CheckExists ($FilePath, $ItemName, $Description) {
@@ -736,19 +576,19 @@ if (test-path $K) {
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
 
     Write-Host "Checking for administrative privileges..."
-    if(!(HasAdminPrivileges)) {
+    if (!(HasAdminPrivileges)) {
         # powershell -noprofile -command "&{ start-process powershell -ArgumentList '-noprofile -file $ScriptExec -Win11Image $Source -DestinationImage $Destination' -verb RunAs}"
         Write-Host "This script requires administrative privileges to run." -ForegroundColor Red
         Exit
     }
 
-    if($UndoPrepareUpgrade) {
+    if ($UndoPrepareUpgrade) {
         # Undo any changes made by -PrepareUpgrade
         Undo_PrepareSystemForUpgrade
         Exit
     }
 
-    if($PrepareUpgrade) {
+    if ($PrepareUpgrade) {
         if([string]::IsNullOrEmpty($Source) -or [string]::IsNullOrEmpty(($Destination))) {
             Write-Host "Prepare system for upgrade"
             PrepareSystemForUpgrade
@@ -775,8 +615,7 @@ if (test-path $K) {
     
     Write-Host "Getting required information..." -ForegroundColor Yellow
 
-    if (Test-Path $Destination)
-    {
+    if (Test-Path $Destination) {
         Alert_DestinationImageAlreadyExists
     }
 
@@ -790,8 +629,7 @@ if (test-path $K) {
 
     # Check for evidence that the image was previously modified. If there is any, give the user the option to either continue or stop.
     & $7ZipExecutable e $Source ("-o" + $ScratchDir) $sb_mark -r | Out-Null
-    if (Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname))
-    {
+    if (Test-Path (Join-Path -Path $ScratchDir -ChildPath $sb_bypass_keyname)) {
         Write-Host "Looks like this ISO has already been modified by this tool. Continuing with it is not recommended as it may have undesirable results."
         Alert_ImageModified
     }
@@ -803,8 +641,7 @@ if (test-path $K) {
     # Make directory to mount WIM images to
     MakeDirectory -Path $WIMScratchDir
 
-    if (-not $SkipReg) # If we're not skipping the boot.wim registry modifications, then...
-    {
+    if (-not $SkipReg) { # If we're not skipping the boot.wim registry modifications, then...
         # Get the current time
         $StartTime = $(get-date)
 
@@ -815,12 +652,12 @@ if (test-path $K) {
         InjectRegistryKeys
 
         # Unmount WIM; save changes
-        Write-Progress -Activity $ActivityName -Status "Dismounting boot.wim; saving changes..." -PercentComplete 60
+        Write-Progress -Activity $ActivityName -Status "Unmounting boot.wim (saving changes)..." -PercentComplete 60
         Dismount-WindowsImage -Path $WIMScratchDir -Save
 
         # Print time elapsed
         $elapsedTime = $(get-date) - $StartTime
-        PrintTimespan "boot.wim patched. Took " $elapsedTime
+        PrintTimespan "Image 'boot.wim' patched. Took " $elapsedTime
     }
 
     # Check if the user asked to modify install.wim
