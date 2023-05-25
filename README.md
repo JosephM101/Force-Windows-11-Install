@@ -1,9 +1,9 @@
 # Force-Windows-11-Install
 
 ## *Notice of Update*:
-After having archived this repository a few months ago, I've decided that maybe I should give this project a second chance. I have some plans that will hopefully further optimize the tool and make it significantly faster, and will allow for adding extra features in an easier way in the future. The secret? Using the "AutoUnattend" method. Now, this will require ***quite*** a bit of work to do, so don't expect anything for a while, but once the update is released, the old method (Win11-TPM-RegistryBypass) will be marked as deprecated.
+After having archived this repository a few months ago, I've decided that maybe I should give this project a second chance. First off, instead of patching the install.wim files, I'm going to resort to using the $OEM folder method for features such as embedding VMware Tools in the final installer (by the way, support for VirtualBox _will_ be coming soon). It'll make the patching process much faster (just to be clear, anything that has to do with install.wim, _NOT_ boot.wim)
 
-It might take a bit longer than I'd like since I'm still a student in high school, but I will try to do what I can. Thank you for understanding.
+These changes will take a bit of work to implement, and given everything I have going on right now, I'll be working slowly.
 
 
 
