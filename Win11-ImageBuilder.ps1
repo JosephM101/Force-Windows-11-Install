@@ -20,8 +20,8 @@ param
 process
 {
     # Acknowledge obsolete status
-    Write-Host "Please keep in mind that this method/tool is now obsolete, and is no longer being maintained. Please use 'Win11-TPM-RegBypass' instead. "
-    Write-Host "Read the README.md for more details, or go to https://github.com/JosephM101/Force-Windows-11-Install/blob/main/README.md"
+    Write-Host "Please keep in mind that this method/tool is now obsolete, and is no longer being maintained. Please use 'Win11-TPM-RegBypass' instead."
+    Write-Host "Please see the README.md for more details, or go to https://github.com/JosephM101/Force-Windows-11-Install/blob/main/README.md"
     Write-Host ""
 
     Function Test-CommandExists {
