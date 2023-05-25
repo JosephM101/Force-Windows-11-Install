@@ -50,11 +50,6 @@ param
 
     [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
-    [switch]
-    $GuiSelectMode = $false,
-
-    [Parameter(ParameterSetName='Extra')]
-    [Parameter(ParameterSetName="Main")]
     [string]
     $SetTargetInsiderLevel,
 
@@ -699,6 +694,7 @@ if (test-path $K) {
     Write-Host "Image created." -ForegroundColor Green
     Write-Host $Destination
 
+    # ONLY if the PrepareUpgrade flag is passed
     PrepareSystemForUpgrade
 
     Pause
