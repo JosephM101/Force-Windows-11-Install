@@ -631,7 +631,6 @@ if (test-path $K) {
     Write-Progress -Activity "$ActivityName" -Status "Extracting image" -PercentComplete 0
     # Extract ISO contents to scratch directory
     & $7ZipExecutable x $Source ("-o" + $Win11ScratchDir) | Out-Null
-    Write-Progress -Activity "$ActivityName" -Status "Mounting boot.wim" -PercentComplete 50
 
     # Make directory to mount WIM images to
     MakeDirectory -Path $WIMScratchDir
@@ -641,12 +640,15 @@ if (test-path $K) {
         $StartTime = $(get-date)
 
         # Mount boot.wim for editing
+        Write-Host "Mounting boot.wim"
+        Write-Progress -Activity "$ActivityName" -Status "Mounting boot.wim" -PercentComplete 50
         Mount-WindowsImage -ImagePath $BootWIMFilePath -Index $BootWimImageIndex -Path $WIMScratchDir
 
         # Add the registry keys
         InjectRegistryKeys
 
         # Unmount WIM; save changes
+        Write-Host "Unmounting boot.wim (saving changes)..."
         Write-Progress -Activity $ActivityName -Status "Unmounting boot.wim (saving changes)..." -PercentComplete 60
         Dismount-WindowsImage -Path $WIMScratchDir -Save
 
