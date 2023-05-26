@@ -50,6 +50,11 @@ param
 
     [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
+    [switch]
+    $InjectNetworkSkipPatch = $false,
+
+    [Parameter(ParameterSetName='Extra')]
+    [Parameter(ParameterSetName="Main")]
     [string]
     $SetTargetInsiderLevel,
 
@@ -342,12 +347,21 @@ rmdir C:\$VMwareTempFolderName /s /q
 powershell.exe -executionpolicy Bypass -file "C:\$PostSetupScriptsPath\$PostPatchPS1Filename"
 "@ }
 
+        if ($InjectNetworkSkipPatch) {
+            $PatchSkipOOBENetwork = 
+@"
+:: OOBE\BYPASSNRO
+reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v BypassNRO /t REG_DWORD /d 1 /f
+"@
+        }
+
 
         # Finally, combine all of the SetupComplete commands into a single string to be written to the file.
         $SetupCompleteCMDContents = 
 @"
 $PatchInject
 $VMwareInstall
+$PatchSkipOOBENetwork
 :: Registry patches
 reg add HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache
 reg add HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache\SV2 /v 0 /t REG_DWORD /d 0 /f
@@ -567,8 +581,11 @@ if (test-path $K) {
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Write-Host "Windows 11 Compatibility Check Bypass Tool $version_s"
+    Write-Host "Windows 11 Compatibility Check Bypass Tool"
+    Write-Host "Version $version_s"
+    Write-Host ""
     Write-Host "If you run into any issues, please don't hesitate to open an issue on the GitHub repository." -ForegroundColor Yellow
+    Write-Host ""
 
     Write-Host "Checking for administrative privileges..."
     if (!(HasAdminPrivileges)) {
@@ -657,8 +674,8 @@ if (test-path $K) {
         PrintTimespan "Image 'boot.wim' patched. Took " $elapsedTime
     }
 
-    # Check if the user asked to modify install.wim
-    if ($InjectVMwareTools -or $InjectPostPatch) {
+    # Process post-install patches
+    if ($InjectVMwareTools -or $InjectPostPatch -or $InjectNetworkSkipPatch) {
         # Start the InjectExtraPatches routine
         InjectExtraPatches
     }
