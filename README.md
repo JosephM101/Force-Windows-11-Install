@@ -1,11 +1,8 @@
 # Force-Windows-11-Install
 
 ## *Notice of Update*:
-After having archived this repository a few months ago, I've decided that maybe I should give this project a second chance. First off, instead of patching the install.wim files, I'm going to resort to using the $OEM folder method for features such as embedding VMware Tools in the final installer (by the way, support for VirtualBox _will_ be coming soon). It'll make the patching process much faster (just to be clear, anything that has to do with install.wim, _NOT_ boot.wim)
-
-These changes will take a bit of work to implement, and given everything I have going on right now, I'll be working slowly.
-
-
+A GUI launcher is in the works to make running the script simpler. I'm currently debating whether I should make it a basic Windows Forms application, or learn how to make a GUI in PowerShell.
+We shall see...
 
 
 ## Win11-TPM-RegistryBypass
