@@ -1,7 +1,7 @@
 # Force-Windows-11-Install
 
 ## *Notice of Update*:
-A GUI launcher is in the works to make running the script simpler. I'm currently debating whether I should make it a basic Windows Forms application, or learn how to make a GUI in PowerShell.
+A GUI launcher is in the works to make running the Win11-TPM-RegBypass script simpler. I'm currently debating whether I should make it a basic Windows Forms application, or learn how to make a GUI in PowerShell.
 We shall see...
 
 
