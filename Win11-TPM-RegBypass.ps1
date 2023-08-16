@@ -55,11 +55,6 @@ param
 
     [Parameter(ParameterSetName='Extra')]
     [Parameter(ParameterSetName="Main")]
-    [string]
-    $SetTargetInsiderLevel,
-
-    [Parameter(ParameterSetName='Extra')]
-    [Parameter(ParameterSetName="Main")]
     [switch]
     $HideTimestamps = $false,
 
